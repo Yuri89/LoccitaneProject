@@ -62,7 +62,7 @@ export default function Editar() {
   const onSubmit: SubmitHandler<Inputs> = (data) => console.log(data);
 
   const handleDelete: SubmitHandler<Inputs> = (data) => {
-    console.log("dados deletado \n" + data)
+    console.log("dados deletado \n\n" + data)
   }
 
   return (
