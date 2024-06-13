@@ -9,7 +9,7 @@ export default function Home(){
             <Link to={'/dados'}>Dados</Link>
             <Link to={'/estoque'}>Estoque</Link>
             <Link to={'/gestao'}>Gestao</Link>
-            <Link to={'/produtos'}>Produtos</Link>
+            <Link to={'/posicoes'}>Posições</Link>
             <Link to={'/configuracoes'}>Configurações</Link>
         </LayoutDefault>
     )

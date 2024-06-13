@@ -1,12 +1,12 @@
-import { Link } from "react-router-dom";
-import { BoxSide, SideBarMainPerfil, FotoPerfil, SideBarSvgImg, SidebarDivMenu, SidebarDivBotaoMenu, SidebarBotaoMenu } from "./style";
+import { BoxSide, SideBarMainPerfil, SideBarSvgImg, SidebarDivMenu, SidebarDivBotaoMenu, SidebarBotaoMenu, SidebarBotaoMenu2 } from "./style";
 import { useSidebar } from "../../Context/ToggleSideBar";
 
 import DadosSvg from "../../assets/svg/svgButtos/Dados.svg";
 import EstoqueSvg from "../../assets/svg/svgButtos/Estoque.svg";
+import PosicoesSvg from "../../assets/svg/svgButtos/Posicoes.svg";
 import GestaoSvg from "../../assets/svg/svgButtos/Gestao.svg";
 import ConfigSvg from "../../assets/svg/svgButtos/Perfil.svg";
-import Foto from "../../assets/img/user.jpg"
+
 
 export default function SideBar() {
 
@@ -16,9 +16,9 @@ export default function SideBar() {
         <BoxSide>
             <SideBarMainPerfil onClick={toggleSidebar}>
                 <div>
-                    <FotoPerfil src={Foto} />
+                    <h2>{isSidebarOpen?">":"<"}</h2>
                 </div>
-                <span>Cleriston</span>
+                <h1>L'occitane</h1>
             </SideBarMainPerfil>
             <SidebarDivMenu>
 
@@ -31,20 +31,20 @@ export default function SideBar() {
                         <SideBarSvgImg src={EstoqueSvg} /><p>Estoque</p>
                     </SidebarBotaoMenu>
 
-                    <SidebarBotaoMenu to={'/produtos'}>
-                        <SideBarSvgImg src={EstoqueSvg} /><p>Produtos</p>
+                    <SidebarBotaoMenu to={'/posicoes'}>
+                        <SideBarSvgImg src={PosicoesSvg} /><p>Posições</p>
                     </SidebarBotaoMenu>
 
-                    <SidebarBotaoMenu to={'/gestao'}>
+                    <SidebarBotaoMenu to={''}>
                         <SideBarSvgImg src={GestaoSvg} /><p>Gestão</p>
                     </SidebarBotaoMenu>
 
                 </SidebarDivBotaoMenu>
 
                 <div>
-                    <SidebarBotaoMenu to={'/'}>
+                    <SidebarBotaoMenu2 to={''}>
                         <SideBarSvgImg src={ConfigSvg} /><p>Configurações</p>
-                    </SidebarBotaoMenu>
+                    </SidebarBotaoMenu2>
                 </div>
 
             </SidebarDivMenu>
