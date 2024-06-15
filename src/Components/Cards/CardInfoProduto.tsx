@@ -1,3 +1,4 @@
+import { PropsWithChildren, useState } from 'react'
 import styled from 'styled-components'
 
 const Container = styled.div`
@@ -23,14 +24,30 @@ const Container = styled.div`
     }
 `
 
-export default function  CardInfoProduto() {
+type Props = {
+    codigo:string,
+    registro:string,
+    status:string
+}
+
+export default function  CardInfoProduto(props:Props) {  
+    
+    function formatDateString(dateString:string) {
+        const parts = dateString.split('-');
+        return `${parts[2]}/${parts[1]}/${parts[0]}`;
+    }
+
     return (
         <Container>
-            <h1>A2</h1>
+            <h1>{props.codigo.toLocaleUpperCase()}</h1>
             <span>
-                <h2>Numero: 10</h2>
-                <h2>Disponivel: 10</h2>
-                <h2>Bloqueado: 10</h2>
+                <h2>{formatDateString(props.registro)}</h2>
+                <h2>{
+                props.status
+                .toLowerCase()
+                .split('_')
+                .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                .join(' ')}</h2>
             </span>
         </Container>
     )

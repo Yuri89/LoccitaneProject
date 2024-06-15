@@ -26,7 +26,8 @@ const FormStyled = styled.form`
 
 const schema = z.object({
   posicao: z.string().min(2, "Caracteres mínimo 2").max(2, "Caracteres máximo 2"),
-  numero: z.number().min(1, { message: "O minimo é 1" }).lte(99, { message: "O numero maximo é de 99" })
+  numero: z.number().min(1, { message: "O minimo é 1" }).lte(99, { message: "O numero maximo é de 99" }),
+  nivel: z.number().min(1, { message: "O minimo é 1" }).lte(99, { message: "O numero maximo é de 99" })
 });
 
 type Inputs = z.infer<typeof schema>; 
@@ -77,6 +78,29 @@ export default function Cadastrar() {
               style: { color: "white" }, 
             }}
             {...register("numero", { valueAsNumber: true })}
+            sx={{
+              "& .MuiOutlinedInput-root .MuiInputBase-input": {
+                color: "white", 
+              },
+              "& .MuiOutlinedInput-notchedOutline": {
+                borderColor: "white", 
+              },
+              "&:hover .MuiOutlinedInput-notchedOutline": {
+                borderColor: "white", 
+              },
+            }}
+          />
+
+<TextField
+            id="fullWidth"
+            error={!!errors.nivel}
+            helperText={errors.nivel?.message}
+            label="Quantas Nives Criar?"
+            size="small"
+            InputLabelProps={{
+              style: { color: "white" }, 
+            }}
+            {...register("nivel", { valueAsNumber: true })}
             sx={{
               "& .MuiOutlinedInput-root .MuiInputBase-input": {
                 color: "white", 

@@ -1,47 +1,30 @@
-import * as React from 'react';
-import InputLabel from '@mui/material/InputLabel';
-import MenuItem from '@mui/material/MenuItem';
-import FormHelperText from '@mui/material/FormHelperText';
-import FormControl from '@mui/material/FormControl';
-import Select, { SelectChangeEvent } from '@mui/material/Select';
-import styled from 'styled-components';
+import React from 'react';
+import { FormControl, MenuItem, Select, SelectChangeEvent } from '@mui/material';
 
-const FormControlColors = styled(FormControl)`
-    filter: invert(1);
-`
+export default function Ordenar({resposta}:any) {
+  const [sortValue, setSortValue] = React.useState('A-Z');
 
-export default function Ordenar() {
-  const [age, setAge] = React.useState('');
-
-  const handleChange = (event: SelectChangeEvent) => {
-    setAge(event.target.value);
+  const handleChange = (event:SelectChangeEvent) => {
+    const value = event.target.value;
+    setSortValue(value);
+    resposta(value);
   };
 
   return (
     <div>
-      
-      <FormControlColors sx={{ m: 1, minWidth: 120 }} size="small">
+      <FormControl sx={{ m: 1, minWidth: 120 }} size="small">
         <Select
-          value={age}
+          value={sortValue}
           onChange={handleChange}
           displayEmpty
           inputProps={{ 'aria-label': 'Without label' }}
         >
-          <MenuItem value="">Data Validade Menor</MenuItem>
-          <MenuItem value={10}>Data Validade Maior</MenuItem>
-          <MenuItem value={20}>Data Estoque Menor</MenuItem>
-          <MenuItem value={30}>Data Estoque Maior</MenuItem>
-          <MenuItem value={40}>A - Z</MenuItem>
-          <MenuItem value={50}>Z - A</MenuItem>
-          <MenuItem value={60}>Peso Maior</MenuItem>
-          <MenuItem value={70}>Peso Menor</MenuItem>
-          <MenuItem value={80}>Codigo Maior</MenuItem>
-          <MenuItem value={90}>Codigo Menor</MenuItem>
-          <MenuItem value={100}>Quantidade Maior</MenuItem>
-          <MenuItem value={110}>Quantidade Menor</MenuItem>
+          <MenuItem value="A-Z">A-Z</MenuItem>
+          <MenuItem value="Z-A">Z-A</MenuItem>
+          <MenuItem value="Data-Menor">Data Validade Menor</MenuItem>
+          <MenuItem value="Data-Maior">Data Validade Maior</MenuItem>
         </Select>
-        
-      </FormControlColors>
+      </FormControl>
     </div>
   );
 }
