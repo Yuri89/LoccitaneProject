@@ -7,6 +7,8 @@ import { Link } from "react-router-dom";
 import { Button, TextField } from "@mui/material";
 import { H1 } from "../../../../Components/Texts";
 import { useDadosPut } from "../../../../Context/DadosPut";
+import { usePosicoes } from "../../../../Context/ContextPosicoes";
+import { PropsGetRuasEditar } from "../../../../Utils/Connections/Get";
 
 
 const Header = styled.header`
@@ -36,13 +38,9 @@ const LinkNone = styled(Link)`
 
 // Define o esquema Zod para os dados do formulário
 const schema = z.object({
-  example: z.string().min(5, "Número mínimo").max(7, "Número máximo"),
-  exampleRequired: z.string().min(5, "Número mínimo").max(7, "Número máximo"),
-  codigoMaterial: z.string().min(5, "Número mínimo").max(7, "Número máximo"),
-  loteMaterial: z.string().min(5, "Número mínimo").max(7, "Número máximo"),
-  ordem: z.string().min(5, "Número mínimo").max(7, "Número máximo"),
-  quantidade: z.string().min(5, "Número mínimo").max(7, "Número máximo"),
-  validade: z.string()
+  rua: z.string().min(5, "Número mínimo").max(7, "Número máximo"),
+  prateleiras: z.string().min(5, "Número mínimo").max(7, "Número máximo"),
+  niveis: z.string().min(5, "Número mínimo").max(7, "Número máximo"),
 
 });
 
@@ -50,13 +48,17 @@ const schema = z.object({
 type Inputs = z.infer<typeof schema>; // Define o tipo Inputs a partir do esquema Zod
 
 export default function Editar() {
-  const { lista } = useDadosPut()
+  const { lista } = usePosicoes()
 
   const isFieldDisabled = true;
 
   const { register, handleSubmit, formState: { errors } } = useForm<Inputs>({
     resolver: zodResolver(schema),
-    defaultValues: lista,
+  defaultValues: lista ? {
+    rua: lista.codigo,
+    prateleiras: lista.n_prateleiras,
+    niveis: lista.n_niveis,
+  } : undefined,
   });
 
   const onSubmit: SubmitHandler<Inputs> = (data) => console.log(data);
@@ -74,24 +76,24 @@ export default function Editar() {
             "&:hover": {
               backgroundColor: "#000053", // Altera a cor de fundo do botão quando hover
             },
-            color:"white",
+            color: "white",
           }}>Voltar</Button>
         </LinkNone>
-        <span style={{marginLeft:15}}>id:{lista?.id.toString()}</span>
+        <span style={{ marginLeft: 15 }}>id:{"12431234"}</span>
       </Header>
       <Box>
         <FormStyled onSubmit={handleSubmit(onSubmit)}>
           <H1>Editar Posição</H1>
           <TextField
             id="fullWidth"
-            error={!!errors.codigoMaterial}
-            helperText={errors.codigoMaterial?.message}
+            error={!!errors.rua}
+            helperText={errors.rua?.message}
             label="Codigo do Material"
             size="small"
             InputLabelProps={{
               style: { color: "white" }, // Altera a cor do rótulo
             }}
-            {...register("codigoMaterial")}
+            {...register("rua")}
             sx={{
               "& .MuiOutlinedInput-root .MuiInputBase-input": {
                 color: 'white', // Altera a cor do texto dentro do input
@@ -107,14 +109,37 @@ export default function Editar() {
 
           <TextField
             id="fullWidth"
-            error={!!errors.loteMaterial}
-            helperText={errors.loteMaterial?.message}
+            error={!!errors.prateleiras}
+            helperText={errors.prateleiras?.message}
             label="Lote do Material"
             size="small"
             InputLabelProps={{
               style: { color: "white" }, // Altera a cor do rótulo
             }}
-            {...register("loteMaterial")}
+            {...register("prateleiras")}
+            sx={{
+              "& .MuiOutlinedInput-root .MuiInputBase-input": {
+                color: "white", // Altera a cor do texto dentro do input
+              },
+              "& .MuiOutlinedInput-notchedOutline": {
+                borderColor: "white", // Altera a cor da borda do input quando não está focado
+              },
+              "&:hover .MuiOutlinedInput-notchedOutline": {
+                borderColor: "white", // Altera a cor da borda do input quando hover
+              },
+            }}
+          />
+
+          <TextField
+            id="fullWidth"
+            error={!!errors.niveis}
+            helperText={errors.niveis?.message}
+            label="Niveis"
+            size="small"
+            InputLabelProps={{
+              style: { color: "white" }, // Altera a cor do rótulo
+            }}
+            {...register("niveis")}
             sx={{
               "& .MuiOutlinedInput-root .MuiInputBase-input": {
                 color: "white", // Altera a cor do texto dentro do input
@@ -143,7 +168,7 @@ export default function Editar() {
           </Button>
           <Button
             variant="contained"
-            onClick={(data:any) => handleDelete(data)}
+            onClick={(data: any) => handleDelete(data)}
             sx={{
               backgroundColor: "#5a0000", // Altera a cor de fundo do botão
               "&:hover": {

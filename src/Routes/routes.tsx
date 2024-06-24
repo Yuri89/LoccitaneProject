@@ -13,6 +13,7 @@ import Login from "../Pages/Login";
 import AuthProvider from "./Authentication/AuthProvider";
 import ProtectedRoute from "./Authentication/ProtectedRoute";
 import { BrowserRouter as Router, RouterProvider, createMemoryRouter } from 'react-router-dom';
+import BloquearP from "../Pages/Home/Posicoes/Stack/Bloquear";
 
 
 
@@ -106,6 +107,14 @@ export default function Routes() {
             ),
         },
         {
+            path: '/stack-posicao-bloquear',
+            element: (
+                <ProtectedRoute>
+                    <BloquearP />
+                </ProtectedRoute>
+            ),
+        },
+        {
             path: '/stack-produtos',
             element: (
                 <ProtectedRoute>
@@ -130,7 +139,6 @@ export default function Routes() {
         <AuthProvider isSignedIn={true}>
             <RouterProvider
                 router={routes}
-                fallbackElement={<Loading />}
                 future={{ v7_startTransition: true }} />
         </AuthProvider>
 

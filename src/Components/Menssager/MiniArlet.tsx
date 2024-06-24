@@ -5,6 +5,8 @@ import styled, { keyframes } from 'styled-components';
 
 interface ModalAlertProps {
     visible: boolean;
+    texto: string;
+
 }
 
 const fadeInAndOut = keyframes`
@@ -25,11 +27,18 @@ const fadeInAndOut = keyframes`
         transform: translateY(100%);
     }
 `;
+const Caixinha = styled.div`
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+`
 
 const ModalAlert = styled.div<ModalAlertProps>`
-    position: relative;
+    position: absolute;
     display: flex;
     background-color: #303030;
+    width: 300px;
+    justify-content: center;
     align-items: center;
     padding: 5px 20px 5px 10px;
     margin-bottom: 10px;
@@ -38,11 +47,14 @@ const ModalAlert = styled.div<ModalAlertProps>`
     animation: ${fadeInAndOut} 5s ease forwards; /* Aplica a animação */
 `;
 
-export default function MiniAlert({ visible }: ModalAlertProps) {
+
+export default function MiniAlert({ visible, texto }: ModalAlertProps) {
     return (
-        <ModalAlert visible={visible}>
-            <Lottie loop={false} style={{ width: 50 }} animationData={InfoAnim} />
-            <span>fim da Lista</span>
-        </ModalAlert>
+        <Caixinha>
+            <ModalAlert visible={visible} texto={texto}>
+                <Lottie loop={false} style={{ width: 50 }} animationData={InfoAnim} />
+                <span>{texto}</span>
+            </ModalAlert>
+        </Caixinha>
     );
 }
