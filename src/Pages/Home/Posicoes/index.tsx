@@ -49,7 +49,7 @@ export default function Posicoes() {
     return (
         <LayoutDefault>
             <LayoutEstoque>
-                <h1>Posições</h1>
+                <h1>Rua</h1>
                 <ButtonsSeparetors>
                     <Dropmenu
                         texto="Opções"
