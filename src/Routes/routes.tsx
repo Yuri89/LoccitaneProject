@@ -10,10 +10,10 @@ import Gestao from "../Pages/Home/Gestao";
 import Home from "../Pages/Home/MainPage";
 import Posicoes from "../Pages/Home/Posicoes";
 import Login from "../Pages/Login";
-import AuthProvider from "./Authentication/AuthProvider";
-import ProtectedRoute from "./Authentication/ProtectedRoute";
 import { BrowserRouter as Router, RouterProvider, createMemoryRouter } from 'react-router-dom';
 import BloquearP from "../Pages/Home/Posicoes/Stack/Bloquear";
+import AuthProvider from "./Authentication/AuthProvider";
+import ProtectedRoute from "./Authentication/ProtectedRoute";
 
 
 
@@ -24,7 +24,7 @@ export default function Routes() {
             path: '/',
             element: (
                 <ProtectedRoute>
-                    <Home />
+                    <Login/>
                 </ProtectedRoute>
             ),
         },
@@ -69,8 +69,8 @@ export default function Routes() {
             ),
         },
         {
-            path: '/signin',
-            element: <Login />,
+            path: '/home',
+            element: <Home/>,
         },
 
 
@@ -103,7 +103,7 @@ export default function Routes() {
             element: (
                 <ProtectedRoute>
                     <EditarP />
-                </ProtectedRoute>
+                    </ProtectedRoute>
             ),
         },
         {
@@ -135,12 +135,10 @@ export default function Routes() {
 
 
     return (
-
         <AuthProvider isSignedIn={true}>
-            <RouterProvider
-                router={routes}
-                future={{ v7_startTransition: true }} />
+        <RouterProvider
+            router={routes}
+            future={{ v7_startTransition: true }} />
         </AuthProvider>
-
     )
 }

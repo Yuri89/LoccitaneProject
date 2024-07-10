@@ -6,7 +6,9 @@ import LayoutDefault from "../../../../Styles/Layouts";
 import { Link } from "react-router-dom";
 import { Button, TextField } from "@mui/material";
 import { H1 } from "../../../../Components/Texts";
-import { useDadosPut } from "../../../../Context/DadosPut";
+import { useProdutos } from "../../../../Context/ContextProdutos";
+import { useNavigateOnError } from "../../../../Hooks/useApiOnError";
+import { api } from "../../../../Utils/Api";
 
 
 const Header = styled.header`
@@ -36,13 +38,11 @@ const LinkNone = styled(Link)`
 
 // Define o esquema Zod para os dados do formulário
 const schema = z.object({
-  example: z.string().min(5, "Número mínimo").max(7, "Número máximo"),
-  exampleRequired: z.string().min(5, "Número mínimo").max(7, "Número máximo"),
-  codigoMaterial: z.string().min(5, "Número mínimo").max(7, "Número máximo"),
-  loteMaterial: z.string().min(5, "Número mínimo").max(7, "Número máximo"),
+  codigo_material: z.string().min(5, "Número mínimo").max(7, "Número máximo"),
+  lote_material: z.string().min(5, "Número mínimo").max(7, "Número máximo"),
   ordem: z.string().min(5, "Número mínimo").max(7, "Número máximo"),
   quantidade: z.string().min(5, "Número mínimo").max(7, "Número máximo"),
-  validade: z.string()
+  data_validade: z.string()
 
 });
 
@@ -50,13 +50,14 @@ const schema = z.object({
 type Inputs = z.infer<typeof schema>; // Define o tipo Inputs a partir do esquema Zod
 
 export default function Editar() {
-  const { lista } = useDadosPut()
+  useNavigateOnError(api);
+  const { produto } = useProdutos()
 
   const isFieldDisabled = true;
 
   const { register, handleSubmit, formState: { errors } } = useForm<Inputs>({
     resolver: zodResolver(schema),
-    defaultValues: lista,
+    defaultValues: produto,
   });
 
   const onSubmit: SubmitHandler<Inputs> = (data) => console.log(data);
@@ -77,21 +78,21 @@ export default function Editar() {
             color:"white",
           }}>Voltar</Button>
         </LinkNone>
-        <span style={{marginLeft:15}}>id:{lista?.id.toString()}</span>
+        <span style={{marginLeft:15}}>id:{produto?.id_produto.toString()}</span>
       </Header>
       <Box>
         <FormStyled onSubmit={handleSubmit(onSubmit)}>
           <H1>Editar Posição</H1>
           <TextField
             id="fullWidth"
-            error={!!errors.codigoMaterial}
-            helperText={errors.codigoMaterial?.message}
+            error={!!errors.codigo_material}
+            helperText={errors.codigo_material?.message}
             label="Codigo do Material"
             size="small"
             InputLabelProps={{
               style: { color: "white" }, // Altera a cor do rótulo
             }}
-            {...register("codigoMaterial")}
+            {...register("codigo_material")}
             sx={{
               "& .MuiOutlinedInput-root .MuiInputBase-input": {
                 color: 'white', // Altera a cor do texto dentro do input
@@ -107,14 +108,14 @@ export default function Editar() {
 
           <TextField
             id="fullWidth"
-            error={!!errors.loteMaterial}
-            helperText={errors.loteMaterial?.message}
+            error={!!errors.lote_material}
+            helperText={errors.lote_material?.message}
             label="Lote do Material"
             size="small"
             InputLabelProps={{
               style: { color: "white" }, // Altera a cor do rótulo
             }}
-            {...register("loteMaterial")}
+            {...register("lote_material")}
             sx={{
               "& .MuiOutlinedInput-root .MuiInputBase-input": {
                 color: "white", // Altera a cor do texto dentro do input
@@ -176,14 +177,14 @@ export default function Editar() {
 
           <TextField
             id="fullWidth"
-            error={!!errors.validade}
-            helperText={errors.validade?.message}
+            error={!!errors.data_validade}
+            helperText={errors.data_validade?.message}
             label="Validade"
             size="small"
             InputLabelProps={{
               style: { color: "white" }, // Altera a cor do rótulo
             }}
-            {...register("validade")}
+            {...register("data_validade")}
             disabled={isFieldDisabled}
             sx={{
               "& .MuiOutlinedInput-root .MuiInputBase-input": {

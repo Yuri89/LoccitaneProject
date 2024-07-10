@@ -6,12 +6,16 @@ import EstoqueSvg from "../../assets/svg/svgButtos/Estoque.svg";
 import PosicoesSvg from "../../assets/svg/svgButtos/Posicoes.svg";
 import GestaoSvg from "../../assets/svg/svgButtos/Gestao.svg";
 import ConfigSvg from "../../assets/svg/svgButtos/Perfil.svg";
+import LogoutSvg from "../../assets/svg/svgButtos/Logout.svg";
 
 
 export default function SideBar() {
 
     const { isSidebarOpen, toggleSidebar } = useSidebar();
 
+    const removeToken = () => {
+        sessionStorage.removeItem('token');
+      };
     return (
         <BoxSide>
             <SideBarMainPerfil onClick={toggleSidebar}>
@@ -23,7 +27,7 @@ export default function SideBar() {
             <SidebarDivMenu>
 
                 <SidebarDivBotaoMenu>
-                    <SidebarBotaoMenu to={'/'}>
+                    <SidebarBotaoMenu to={'/home'}>
                         <SideBarSvgImg src={DadosSvg} /><p>Dados</p>
                     </SidebarBotaoMenu>
 
@@ -42,8 +46,8 @@ export default function SideBar() {
                 </SidebarDivBotaoMenu>
 
                 <div>
-                    <SidebarBotaoMenu2 to={''}>
-                        <SideBarSvgImg src={ConfigSvg} /><p>Configurações</p>
+                    <SidebarBotaoMenu2 to={'/'} onClick={() => removeToken()}>
+                        <SideBarSvgImg src={LogoutSvg} /><p>Logout</p>
                     </SidebarBotaoMenu2>
                 </div>
 

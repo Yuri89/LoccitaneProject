@@ -9,6 +9,8 @@ import { Button, CircularProgress, TextField } from "@mui/material";
 import { H1 } from "../../../../Components/Texts";
 import MiniAlert from "../../../../Components/Menssager/MiniArlet";
 import { uploadDataRuas } from "../../../../Utils/Connections/Post";
+import { useNavigateOnError } from '../../../../Hooks/useApiOnError';
+import { api } from '../../../../Utils/Api';
 
 const Box = styled.div`
     padding: 120px 10px;
@@ -29,7 +31,7 @@ const FormStyled = styled.form`
 
 // Ajuste no schema para garantir que os números sejam inteiros
 const schema = z.object({
-    posicao: z.string().min(2, "Caracteres mínimo 2").max(2, "Caracteres máximo 2"),
+    posicao: z.string().min(2, "Caracteres mínimo 2").max(2, "Caracteres máximo 2").regex(/^[A-Za-z]+$/, { message: "Apenas letras são permitidas" }),
     numero: z.number().int().min(1, { message: "O mínimo é 1" }).lte(99, { message: "O número máximo é de 99" }),
     nivel: z.number().int().min(1, { message: "O mínimo é 1" }).lte(99, { message: "O número máximo é de 99" })
 });
@@ -37,6 +39,8 @@ const schema = z.object({
 type Inputs = z.infer<typeof schema>;
 
 export default function Cadastrar() {
+    useNavigateOnError(api);
+
     const { register, handleSubmit, formState: { errors } } = useForm<Inputs>({
         resolver: zodResolver(schema),
     });
@@ -92,6 +96,7 @@ export default function Cadastrar() {
                         helperText={errors.posicao?.message}
                         label="Posição"
                         size="small"
+                        autoComplete="off"
                         InputLabelProps={{
                             style: { color: "white" },
                         }}
@@ -115,6 +120,7 @@ export default function Cadastrar() {
                         helperText={errors.numero?.message}
                         label="Quantas Posições Criar?"
                         size="small"
+                        autoComplete="off"
                         InputLabelProps={{
                             style: { color: "white" },
                         }}
@@ -138,6 +144,7 @@ export default function Cadastrar() {
                         helperText={errors.nivel?.message}
                         label="Quantas Níveis Criar?"
                         size="small"
+                        autoComplete="off"
                         InputLabelProps={{
                             style: { color: "white" },
                         }}

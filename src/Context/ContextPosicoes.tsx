@@ -1,21 +1,21 @@
 import React, { PropsWithChildren, createContext, useContext, useState } from "react";
 
-interface dados {
+interface Dados {
     id_rua: string;
-    codigo: string,
-    n_prateleiras: string,
-    n_niveis: string,
+    codigo: string;
+    n_prateleiras: string;
+    n_niveis: string;
 }
 
-interface ListDadosContextType {
-    lista: dados | undefined;
-    setLista: React.Dispatch<React.SetStateAction<dados | undefined>>;
+interface DadosContextType {
+    lista: Dados | undefined;
+    setLista: React.Dispatch<React.SetStateAction<Dados | undefined>>;
 }
 
-const ListDados = createContext<ListDadosContextType | undefined>(undefined);
+const ListDados = createContext<DadosContextType | undefined>(undefined);
 
-function CompartilharPosicoes({children}:PropsWithChildren) {
-    const [lista, setLista] = useState<dados>();
+function CompartilharPosicoes({children}: PropsWithChildren) {
+    const [lista, setLista] = useState<Dados>();
 
     return (
         <ListDados.Provider value={{ lista, setLista }}>
@@ -24,7 +24,7 @@ function CompartilharPosicoes({children}:PropsWithChildren) {
     );
 }
 
-const usePosicoes = (): ListDadosContextType => {
+const usePosicoes = (): DadosContextType => {
     const context = useContext(ListDados);
     if (!context) {
       throw new Error('useSidebar must be used within a SidebarProvider');

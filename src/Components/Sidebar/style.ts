@@ -95,11 +95,17 @@ export const SidebarBotaoMenu2 = styled(Link)`
     align-items: center;
     padding: 12px;
     color: #ffffff;
-    background-color: #252525;
-    cursor: not-allowed;
-    & ${SideBarSvgImg} {
-        filter: invert(0.8); // Remove o filtro invert no hover
+    transition: background-color 300ms, color 300ms;
+
+    &:hover {
+        cursor: pointer;
+        text-decoration: none;
+        background-color: #ffffff;
+        color: #252525;
+
+        & ${SideBarSvgImg} {
+            filter: invert(0.8); // Remove o filtro invert no hover
+        }
     }
     
-
 `;

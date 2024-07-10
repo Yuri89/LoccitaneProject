@@ -1,16 +1,16 @@
-// Em Bloquear.tsx
-
 import React, { useState, useEffect } from 'react';
 import styled from "styled-components";
 import LayoutDefault from "../../../../Styles/Layouts";
 import { Link } from "react-router-dom";
-import { Button, CircularProgress, FormControl, FormHelperText } from "@mui/material";
+import { Button, CircularProgress } from "@mui/material";
 import { H1 } from "../../../../Components/Texts";
 import MiniAlert from "../../../../Components/Menssager/MiniArlet";
 import SelectPosition from '../../../../Components/Fields/SelectPosition';
 import SelectNivel from '../../../../Components/Fields/SelectNivel';
-import { SelectRua } from '../../../../Components/Fields/SelectRua'; // Importe correto
+import { SelectRua } from '../../../../Components/Fields/SelectRua';
 import { PropsGetRuas, PropsGetRuasBloquado, fetchRuas, fetchRuasBloqueado } from '../../../../Utils/Connections/Get';
+import { useNavigateOnError } from '../../../../Hooks/useApiOnError';
+import { api } from '../../../../Utils/Api';
 
 const Box = styled.div`
     padding: 120px 10px;
@@ -30,6 +30,7 @@ const FormStyled = styled.form`
 `;
 
 export default function Bloquear() {
+    useNavigateOnError(api);
     const [isLoading, setIsLoading] = useState(false);
     const [isLoadingComponent, setIsLoadingComponent] = useState(true);
     const [alerts, setAlerts] = useState<{ id: number, visible: boolean, texto: string }[]>([]);
@@ -39,6 +40,7 @@ export default function Bloquear() {
     const [isBloqueado, setIsBloqueado] = useState(false);
     const [listRua, setListRua] = useState<PropsGetRuas[]>([]);
     const [position, setPosition] = useState<PropsGetRuasBloquado | undefined>(); // Estado para armazenar os detalhes da posição
+    const [isListNivel, setIsListNivel] = useState(false);
 
     // Função para lidar com a seleção de uma rua
     const handleRuaClick = (id: string) => {
@@ -47,18 +49,18 @@ export default function Bloquear() {
 
     useEffect(() => {
         // Verifica se o nível selecionado está bloqueado
-        const nivelSelecionado = niveis.find(nivel => nivel.id === selectedNivel);
+        const nivelSelecionado = position?.prateleiras.find(prateleira => prateleira.id_prateleira === selectedPosition)?.niveis.find(nivel => nivel.id_nivel === selectedNivel);
         setIsBloqueado(nivelSelecionado?.status === 'BLOQUEADO');
-    }, [selectedNivel]);
+    }, [selectedNivel, position, selectedPosition]);
 
     const handlePositionClick = (id: string) => {
-        setIsListNivel(true)
+        setIsListNivel(true);
         setSelectedPosition(id);
     };
 
     const handleNivelClick = (id: string) => {
         setSelectedNivel(id);
-        const selectedNivelObj = niveis.find(nivel => nivel.id === id);
+        const selectedNivelObj = position?.prateleiras.find(prateleira => prateleira.id_prateleira === selectedPosition)?.niveis.find(nivel => nivel.id_nivel === id);
         if (selectedNivelObj && selectedNivelObj.status === 'BLOQUEADO') {
             setIsBloqueado(true);
         } else {
@@ -73,8 +75,14 @@ export default function Bloquear() {
         const formData = {
             position: selectedPosition,
             nivel: selectedNivel,
-            rua: selectedRuaId // Usa o ID da rua selecionada
+            rua: selectedRuaId
         };
+
+        try {
+            
+        } catch (error) {
+            
+        }
 
         console.log('Dados do formulário:', formData);
 
@@ -128,12 +136,6 @@ export default function Bloquear() {
         }
     };
 
-    const niveis = [
-        { id: '1', texto: 'Nível 1', status: 'PARA_USO' },
-        { id: '2', texto: 'Nível 2', status: 'BLOQUEADO' },
-        { id: '3', texto: 'Nível 3', status: 'PARA_USO' }
-    ];
-
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -147,8 +149,6 @@ export default function Bloquear() {
 
         fetchData();
     }, []);
-
-    const [isListNivel,setIsListNivel] = useState(false);
 
     useEffect(() => {
         const fetchData2 = async () => {
@@ -177,21 +177,21 @@ export default function Bloquear() {
                         ruas={listRua.map(item => item.codigo)}
                         onClick={handleRuaClick}
                         loading={isLoadingComponent}
+                        styleB={false}
                     />
                     <SelectPosition
                         ids={position?.prateleiras?.map(item => item.id_prateleira) || []}
                         numeros={position?.prateleiras?.map(item => item.codigo) || []}
                         onClick={handlePositionClick}
                         isList={!position?.prateleiras || position?.prateleiras.length === 0}
+                        styleB={false}
                     />
-
                     <SelectNivel
                         niveis={position?.prateleiras.find(prateleira => prateleira.id_prateleira === selectedPosition)?.niveis || []}
                         isList={!isListNivel}
                         onClick={handleNivelClick}
+                        styleB={false}
                     />
-
-
                     <Button
                         variant="contained"
                         type="submit"

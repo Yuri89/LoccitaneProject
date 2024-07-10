@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import LayoutDefault from "../../../Styles/Layouts";
 import Lottie from 'lottie-react';
 import Loading from "../../../Styles/anim/Loading.json";
@@ -14,10 +14,15 @@ import { useEffect, useState } from "react";
 import { H1 } from "../../../Components/Texts";
 import Dropmenu from "../../../Components/Fields/Dropmenu";
 import { usePosicoes } from "../../../Context/ContextPosicoes";
+import { useNavigateOnError } from "../../../Hooks/useApiOnError";
+import { api } from "../../../Utils/Api";
 
 export default function Posicoes() {
+    useNavigateOnError(api);
     const { setLista } = usePosicoes();
     const [sortOption, setSortOption] = useState('');
+    const location = useLocation();
+
 
     const { data, isLoading, isError, error, refetch } = useQuery<PropsGetRuas[], Error>({
         queryKey: ['ruas'],
@@ -26,16 +31,18 @@ export default function Posicoes() {
         enabled: true, // Habilitar inicialmente
     });
 
-    // ... código anterior
+    useEffect(() => {
+        refetch();
+    }, [location, refetch]);
 
-    // Exemplo de uso do useEffect para disparar refetch manualmente
     useEffect(() => {
         const intervalId = setInterval(() => {
             refetch();
-        }, 30000); // Dispara refetch a cada 5 segundos
+        }, 30000); // Dispara refetch a cada 30 segundos
 
         return () => clearInterval(intervalId); // Limpa o intervalo quando o componente é desmontado
     }, [refetch]);
+
     const sortedData = useOrdenar(data ?? [], sortOption);
 
     function EditarDados(item: any) {
@@ -45,6 +52,10 @@ export default function Posicoes() {
     const style = {
         height: 100,
     };
+    useEffect(()=> {
+        refetch()
+    },[])
+    
 
     return (
         <LayoutDefault>
@@ -56,10 +67,8 @@ export default function Posicoes() {
                         links={[
                             { link: '/stack-posicao-cadastrar', linkText: 'Cadastrar posição' },
                             { link: '/stack-posicao-bloquear', linkText: 'Bloquear posições' },
-                            { link: '/stack-posicao-cadastrar', linkText: 'Editar posições' }
                         ]}
                     />
-                    <Filtro />
                     <Ordenar resposta={setSortOption} />
                 </ButtonsSeparetors>
                 <LayoutGridPosicao>
@@ -73,17 +82,23 @@ export default function Posicoes() {
                             <H1>Error ao puxar dados</H1>
                         </div>
                     )}
-                    {!isLoading && !isError && sortedData.map((item) => (
+                    {!isLoading && !isError && sortedData.length === 0 && (
+                        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%', color: '#5a8aff', height: '60vh' }}>
+                            <H1>Dados Vazios</H1>
+                        </div>
+                    )}
+                    {!isLoading && !isError && sortedData.length > 0 && sortedData.map((item) => (
                         <Link to={'/stack-posicao-editar'} onClick={() => EditarDados(item)} key={item.id_rua}>
                             <CardInfoPosicao
                                 codigo={item.codigo}
                                 registro={item.registro}
-                                status={item.status} 
-                                prateleiras={item.n_prateleiras} 
-                                niveis={item.n_niveis} 
-                                livre={item.n_vazios} 
-                                preenchido={item.n_preenchidos} 
-                                bloqueado={item.n_bloqueado}                            />
+                                status={item.status}
+                                prateleiras={item.n_prateleiras}
+                                niveis={item.n_niveis}
+                                livre={item.n_vazios}
+                                preenchido={item.n_preenchidos}
+                                bloqueado={item.n_bloqueado}
+                            />
                         </Link>
                     ))}
                 </LayoutGridPosicao>

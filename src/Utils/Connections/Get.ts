@@ -28,6 +28,20 @@ export const fetchRuas = async (): Promise<PropsGetRuas[]> => {
     }
 };
 
+export const fetchRuaID = async (id:String): Promise<PropsGetRuas[]> => {
+    try {
+        const response = await api.get<PropsGetRuas[]>(`/ruas/${id}`);
+        console.log('Dados recebidos:', response.data);
+        console.log('Dados recebidos:', response.status);
+        return response.data;
+    } catch (error) {
+        console.error('Erro na requisição:', error);
+        throw error;
+    } finally {
+        console.log('Requisição finalizada');
+    }
+};
+
 export type Nivel = {
     id_nivel: string;
     codigo: string;
@@ -72,6 +86,40 @@ export type PropsGetRuasEditar = {
 export const fetchRuasEditar = async (id: string): Promise<PropsGetRuasEditar> => {
     try {
         const response = await api.get<PropsGetRuasEditar>(`/ruas/${id}`);
+        console.log('Dados recebidos:', response.data);
+        console.log('Status da resposta:', response.status);
+        return response.data;
+    } catch (error) {
+        console.error('Erro na requisição:', error);
+        throw error;
+    } finally {
+        console.log('Requisição finalizada');
+    }
+};
+
+export type ProdutoPropsGet = {
+    id_produto: string,
+    material: string,
+    nome: string,
+    codigo_material: string,
+    lote_material: string,
+    data_validade: string,
+    quantidade: string,
+    niveis: any[]
+}
+
+export type ProdutoContentGet = {
+    content: ProdutoPropsGet[],
+    size: string,
+    totalElements: string,
+    totalPages: string,
+}
+
+export const ProdutosFetch = async (page: string, size: string): Promise<ProdutoContentGet> => {
+    try {
+        const response = await api.get<ProdutoContentGet>('/produtos', {
+            params: { page, size },
+        });
         console.log('Dados recebidos:', response.data);
         console.log('Status da resposta:', response.status);
         return response.data;

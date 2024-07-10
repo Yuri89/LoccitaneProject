@@ -7,6 +7,7 @@ type CodigoRua = {
     ruas: string[];
     loading: boolean;
     onClick: (id: string) => void;
+    styleB: boolean
 }
 
 export function SelectRua(props: CodigoRua) {
@@ -41,6 +42,29 @@ export function SelectRua(props: CodigoRua) {
                     label="Ruas"
                     onChange={handleChange}
                     disabled={props.loading}
+                    sx={props.styleB?{
+                        width: '100%',
+                        "& .MuiOutlinedInput-root .MuiInputBase-input": {
+                            color: "white",
+                        },
+                        "& .MuiOutlinedInput-notchedOutline": {
+                            borderColor: "white",
+                        },
+                        "&:hover .MuiOutlinedInput-notchedOutline": {
+                            borderColor: "white",
+                        },
+                        
+                    }:{
+                      "& .MuiOutlinedInput-root .MuiInputBase-input": {
+                            color: "white",
+                        },
+                        "& .MuiOutlinedInput-notchedOutline": {
+                            borderColor: "white",
+                        },
+                        "&:hover .MuiOutlinedInput-notchedOutline": {
+                            borderColor: "white",
+                        },
+                    }}
                 >
                     {props.ruas.map((rua, index) => (
                         <MenuItem key={props.ids[index]} value={rua}>

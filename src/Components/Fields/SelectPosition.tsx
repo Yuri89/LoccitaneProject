@@ -7,6 +7,7 @@ type NumberPositions = {
     numeros: string[];
     isList: boolean;
     onClick: (id: string) => void; // A função onClick agora aceita um identificador
+    styleB:boolean
 }
 
 export default function SelectPosition(props: NumberPositions) {
@@ -30,8 +31,19 @@ export default function SelectPosition(props: NumberPositions) {
           label="Posições"
           onChange={handleChange}
           disabled={props.isList}
-          sx={{
+          sx={props.styleB?{
+            width: '100%',
             "& .MuiOutlinedInput-root .MuiInputBase-input": {
+                color: "white",
+            },
+            "& .MuiOutlinedInput-notchedOutline": {
+                borderColor: "white",
+            },
+            "&:hover .MuiOutlinedInput-notchedOutline": {
+                borderColor: "white",
+            },
+        }:{
+          "& .MuiOutlinedInput-root .MuiInputBase-input": {
                 color: "white",
             },
             "& .MuiOutlinedInput-notchedOutline": {

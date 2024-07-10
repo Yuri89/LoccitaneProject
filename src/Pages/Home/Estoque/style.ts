@@ -33,3 +33,15 @@ export const ButtonsSeparetors = styled.div`
     align-items: center;
     
 `
+
+export const ButtonsSeparetors2 = styled.div`
+    display: flex;
+    justify-content: space-between;
+    padding: 16px;
+    gap: 16px;
+    align-items: center;
+    
+    & div{
+        display: flex;
+    }
+`

@@ -12,6 +12,7 @@ type SelectNivelProps = {
   niveis: Nivel[];
   isList: boolean;
   onClick: (id: string) => void;
+  styleB:boolean
 }
 
 export default function SelectNivel(props: SelectNivelProps) {
@@ -35,17 +36,28 @@ export default function SelectNivel(props: SelectNivelProps) {
           label="Níveis"
           onChange={handleChange}
           disabled={props.isList}
-          sx={{
+          sx={props.styleB?{
+            width: '100%',
             "& .MuiOutlinedInput-root .MuiInputBase-input": {
-              color: "white",
+                color: "white",
             },
             "& .MuiOutlinedInput-notchedOutline": {
-              borderColor: "white",
+                borderColor: "white",
             },
             "&:hover .MuiOutlinedInput-notchedOutline": {
-              borderColor: "white",
+                borderColor: "white",
             },
-          }}
+        }:{
+          "& .MuiOutlinedInput-root .MuiInputBase-input": {
+                color: "white",
+            },
+            "& .MuiOutlinedInput-notchedOutline": {
+                borderColor: "white",
+            },
+            "&:hover .MuiOutlinedInput-notchedOutline": {
+                borderColor: "white",
+            },
+        }}
           renderValue={(selected) => {
             const selectedNivel = props.niveis.find(nivel => nivel.codigo === selected);
             return (

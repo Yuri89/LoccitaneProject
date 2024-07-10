@@ -1,8 +1,8 @@
 import { api } from "../Api";
 
-export const deleteResourceWithBody = async ({id, additionalParams}:any) => {
+export const deleterPosicao = async (id:string) => {
     try {
-        const response = await api.delete(`/delete/${id}`, { data: additionalParams });
+        const response = await api.delete(`/ruas/${id}`);
         console.log('Recurso deletado com sucesso:', response.data);
         return response.data;
     } catch (error) {

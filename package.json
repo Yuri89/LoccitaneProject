@@ -22,8 +22,9 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-hook-form": "^7.51.2",
-    "react-router-dom": "^6.22.3",
+    "react-router-dom": "^6.24.1",
     "styled-components": "^6.1.8",
+    "victory": "^37.0.2",
     "zod": "^3.22.4"
   },
   "devDependencies": {
