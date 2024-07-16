@@ -3,12 +3,12 @@ import Box from '@mui/material/Box';
 import { FormControl, InputLabel, MenuItem, Select, SelectChangeEvent } from '@mui/material';
 
 type NumberPositions = {
-    ids: string[]; // Corrigido para 'ids' para corresponder ao uso no map
-    numeros: string[];
-    isList: boolean;
-    onClick: (id: string) => void; // A função onClick agora aceita um identificador
-    styleB:boolean
-}
+  ids: string[];
+  numeros: string[];
+  isList: boolean;
+  onClick: (id: string) => void;
+  styleB: boolean;
+};
 
 export default function SelectPosition(props: NumberPositions) {
   const [selectedNumero, setSelectedNumero] = React.useState<string>('');
@@ -17,13 +17,27 @@ export default function SelectPosition(props: NumberPositions) {
     const selectedValue = event.target.value as string;
     setSelectedNumero(selectedValue);
     const selectedIndex = props.numeros.indexOf(selectedValue);
-    props.onClick(props.ids[selectedIndex]); 
+    props.onClick(props.ids[selectedIndex]);
   };
+
+  // Ordene a lista de números junto com seus ids
+  const numerosComIdsOrdenados = props.numeros
+    .map((numero, index) => ({ numero, id: props.ids[index] }))
+    .sort((a, b) => parseFloat(a.numero) - parseFloat(b.numero));
 
   return (
     <Box sx={{ minWidth: 120 }}>
       <FormControl fullWidth>
-        <InputLabel id="demo-simple-select-label">Posições</InputLabel>
+        <InputLabel
+          id="demo-simple-select-label"
+          sx={{
+            color: 'white',
+            background: '#222',
+            padding: '0px 5px'
+          }}
+        >
+          Posições
+        </InputLabel>
         <Select
           labelId="demo-simple-select-label"
           id="demo-simple-select"
@@ -31,32 +45,26 @@ export default function SelectPosition(props: NumberPositions) {
           label="Posições"
           onChange={handleChange}
           disabled={props.isList}
-          sx={props.styleB?{
-            width: '100%',
-            "& .MuiOutlinedInput-root .MuiInputBase-input": {
-                color: "white",
+          sx={{
+            width: props.styleB ? '100%' : undefined,
+            border: '1px solid white', // Define a borda branca
+            color: 'white', // Define a cor do texto como branco
+            "& .MuiSelect-iconOutlined": {
+              color: 'white', // Cor do ícone de dropdown também em branco
             },
-            "& .MuiOutlinedInput-notchedOutline": {
-                borderColor: "white",
+            "& .MuiOutlinedInput-root": {
+              "&:hover .MuiOutlinedInput-notchedOutline": {
+                borderColor: 'white', // Cor da borda em hover para branco
+              },
             },
-            "&:hover .MuiOutlinedInput-notchedOutline": {
-                borderColor: "white",
+            "&:hover": {
+              borderColor: '#aaa', // Cor da borda em hover para branco
             },
-        }:{
-          "& .MuiOutlinedInput-root .MuiInputBase-input": {
-                color: "white",
-            },
-            "& .MuiOutlinedInput-notchedOutline": {
-                borderColor: "white",
-            },
-            "&:hover .MuiOutlinedInput-notchedOutline": {
-                borderColor: "white",
-            },
-        }}
+          }}
         >
-          {props.numeros.map((numero, index) => (
-            <MenuItem key={props.ids[index]} value={numero}>
-              Posição: {numero}
+          {numerosComIdsOrdenados.map(({ numero, id }) => (
+            <MenuItem key={id} value={numero}>
+              {numero}
             </MenuItem>
           ))}
         </Select>

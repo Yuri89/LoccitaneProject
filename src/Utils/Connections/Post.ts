@@ -13,7 +13,7 @@ export const uploadDataRuas = async (formData: { posicao: string; numero: number
     data.append('status', "PARA_USO");
     data.append('registro', dateTime.toString())
 
-    return api.post('/ruas', data, {
+    return await api.post('/ruas', data, {
         timeout: 5000
     })
     .then(response => {
@@ -42,6 +42,14 @@ export type FormProduto = {
     id_nivel: string;
 };
 
+function formatDate(date: string): string {
+    const d = new Date(date);
+    const day = (`0${d.getDate()}`).slice(-2);
+    const month = (`0${d.getMonth() + 1}`).slice(-2);
+    const year = d.getFullYear();
+    return `${day}/${month}/${year}`;
+}
+
 export const registraProduto = async (formDataProduto: FormProduto) => {
     const formData = new FormData();
 
@@ -50,24 +58,23 @@ export const registraProduto = async (formDataProduto: FormProduto) => {
     formData.append('nome', formDataProduto.nome);
     formData.append('codigo_material', formDataProduto.codigo_material);
     formData.append('lote_material', formDataProduto.lote_material);
-    formData.append('data_validade', formDataProduto.data_validade);
+    formData.append('data_validade', formatDate(formDataProduto.data_validade));
     formData.append('quantidade', formDataProduto.quantidade);
     formData.append('id_nivel', formDataProduto.id_nivel);
 
-    try {
-        const response = await api.post('/produtos', formData, {
+    return await api.post('/produtos', formData,  {
             timeout: 5000,
             headers: {
-                'Content-Type': 'multipart/form-data', // Axios setará automaticamente para FormData
+                'Content-Type': 'multipart/form-data'
             }
-        });
-        console.log('Dados enviados com sucesso:', response.status);
-        return response.data;
-    } catch (error) {
-    
-        console.error('Erro ao enviar dados:', error);
-        throw error;
-    } finally {
-        console.log('Requisição POST finalizada');
-    }
+        }).then((response)=>{
+            console.log('Dados enviados com sucesso:', response.status);
+        }).catch((error)=>{
+            console.error('Erro ao enviar dados:', error);
+            throw error;
+        }).finally(()=>{
+            console.log('Requisição POST finalizada');
+        })
+        
 };
+

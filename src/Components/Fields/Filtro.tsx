@@ -72,6 +72,22 @@ export default function Filtro() {
           value={personName}
           onChange={handleChange}
           input={<OutlinedInput id="select-multiple-chip" label="Chip" />}
+          sx={{
+            border: '1px solid white', // Define a borda branca
+            color: 'white', // Define a cor do texto como branco
+            "& .MuiSelect-iconOutlined": {
+              color: 'white', // Cor do ícone de dropdown também em branco
+            },
+            "& .MuiOutlinedInput-root": {
+              "&:hover .MuiOutlinedInput-notchedOutline": {
+                borderColor: 'white', // Cor da borda em hover para branco
+              },
+            },
+            "&:hover": {
+              color:'#aaa',
+              borderColor: '#aaa', // Cor da borda em hover para branco
+              },
+          }}
           renderValue={(selected) => (
             <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
               {selected.map((value) => (

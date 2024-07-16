@@ -130,3 +130,24 @@ export const ProdutosFetch = async (page: string, size: string): Promise<Produto
         console.log('Requisição finalizada');
     }
 };
+
+export type GraphicInfo = {
+    totalBloqueado: string,
+    totalNiveis: string,
+    totalPrateleiras: string,
+    totalPreenchidos: string,
+    totalRuas: string,
+    totalVazios: string,
+}
+
+export const fetchGrafico = async (): Promise<GraphicInfo> => {
+    try {
+        const response = await api.get<GraphicInfo>("/ruas/grafico");
+        return response.data;
+    } catch (error) {
+        console.error('Erro na requisição:', error);
+        throw error;
+    } finally {
+        
+    }
+};

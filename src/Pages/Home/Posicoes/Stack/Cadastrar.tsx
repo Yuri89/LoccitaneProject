@@ -103,13 +103,13 @@ export default function Cadastrar() {
                         {...register("posicao")}
                         sx={{
                             "& .MuiOutlinedInput-root .MuiInputBase-input": {
-                                color: "white",
+                                color: 'white', // Altera a cor do texto dentro do input
                             },
                             "& .MuiOutlinedInput-notchedOutline": {
-                                borderColor: "white",
+                                borderColor: "white", // Altera a cor da borda do input quando não está focado
                             },
-                            "&:hover .MuiOutlinedInput-notchedOutline": {
-                                borderColor: "white",
+                            "& :hover .MuiOutlinedInput-notchedOutline": {
+                                borderColor: '#aaa', // Cor da borda em hover para branco
                             },
                         }}
                     />
@@ -127,13 +127,13 @@ export default function Cadastrar() {
                         {...register("numero", { valueAsNumber: true })}
                         sx={{
                             "& .MuiOutlinedInput-root .MuiInputBase-input": {
-                                color: "white",
+                                color: 'white', // Altera a cor do texto dentro do input
                             },
                             "& .MuiOutlinedInput-notchedOutline": {
-                                borderColor: "white",
+                                borderColor: "white", // Altera a cor da borda do input quando não está focado
                             },
-                            "&:hover .MuiOutlinedInput-notchedOutline": {
-                                borderColor: "white",
+                            "& :hover .MuiOutlinedInput-notchedOutline": {
+                                borderColor: '#aaa', // Cor da borda em hover para branco
                             },
                         }}
                     />
@@ -151,13 +151,13 @@ export default function Cadastrar() {
                         {...register("nivel", { valueAsNumber: true })}
                         sx={{
                             "& .MuiOutlinedInput-root .MuiInputBase-input": {
-                                color: "white",
+                                color: 'white', // Altera a cor do texto dentro do input
                             },
                             "& .MuiOutlinedInput-notchedOutline": {
-                                borderColor: "white",
+                                borderColor: "white", // Altera a cor da borda do input quando não está focado
                             },
-                            "&:hover .MuiOutlinedInput-notchedOutline": {
-                                borderColor: "white",
+                            "& :hover .MuiOutlinedInput-notchedOutline": {
+                                borderColor: '#aaa', // Cor da borda em hover para branco
                             },
                         }}
                     />
@@ -167,7 +167,7 @@ export default function Cadastrar() {
                         type="submit"
                         disabled={isLoading}
                         sx={{
-                            backgroundColor: "blue",
+                            backgroundColor: "#0f4900",
                             "&:hover": {
                                 backgroundColor: "green",
                             },

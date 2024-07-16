@@ -3,12 +3,16 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import { zodResolver } from '@hookform/resolvers/zod'; // Importa o resolver do Zod
 import { z } from 'zod'; // Importa o Zod
 import LayoutDefault from "../../../../Styles/Layouts";
-import { Link } from "react-router-dom";
+import { Link, Navigate, useNavigate } from "react-router-dom";
 import { Button, TextField } from "@mui/material";
 import { H1 } from "../../../../Components/Texts";
 import { useProdutos } from "../../../../Context/ContextProdutos";
 import { useNavigateOnError } from "../../../../Hooks/useApiOnError";
 import { api } from "../../../../Utils/Api";
+import { ProdutoPutForm, putProduto } from "../../../../Utils/Connections/Put";
+import { useState } from "react";
+import MiniAlert from "../../../../Components/Menssager/MiniArlet";
+import { deletarProduto } from "../../../../Utils/Connections/Delete";
 
 
 const Header = styled.header`
@@ -38,10 +42,11 @@ const LinkNone = styled(Link)`
 
 // Define o esquema Zod para os dados do formulário
 const schema = z.object({
-  codigo_material: z.string().min(5, "Número mínimo").max(7, "Número máximo"),
-  lote_material: z.string().min(5, "Número mínimo").max(7, "Número máximo"),
-  ordem: z.string().min(5, "Número mínimo").max(7, "Número máximo"),
-  quantidade: z.string().min(5, "Número mínimo").max(7, "Número máximo"),
+  nome: z.string().min(1, "Número mínimo").max(254, "Número máximo"),
+  material: z.string().min(1, "Número mínimo").max(254, "Número máximo"),
+  codigo_material: z.string().min(1, "Número mínimo").max(254, "Número máximo"),
+  lote_material: z.string().min(1, "Número mínimo").max(254, "Número máximo"),
+  quantidade: z.string().min(1, "Número mínimo").max(254, "Número máximo"),
   data_validade: z.string()
 
 });
@@ -51,19 +56,84 @@ type Inputs = z.infer<typeof schema>; // Define o tipo Inputs a partir do esquem
 
 export default function Editar() {
   useNavigateOnError(api);
-  const { produto } = useProdutos()
+  const [alerts, setAlerts] = useState<{ id: number, visible: boolean, texto: string }[]>([]);
+  const { produto, setProduto } = useProdutos();
+  const navigate = useNavigate()
+
 
   const isFieldDisabled = true;
 
   const { register, handleSubmit, formState: { errors } } = useForm<Inputs>({
     resolver: zodResolver(schema),
-    defaultValues: produto,
+    defaultValues: {
+      ...produto,
+      quantidade: produto?.quantidade.toString() ?? "", // Garante que quantidade seja uma string
+    },
   });
 
-  const onSubmit: SubmitHandler<Inputs> = (data) => console.log(data);
+  const adicionarAlert = (textoString: string) => {
+    const newAlert: { id: number, visible: boolean, texto: string } = {
+      id: alerts.length + 1,
+      visible: true,
+      texto: textoString
+    };
+
+    setAlerts(prevAlerts => [...prevAlerts, newAlert]);
+
+    setTimeout(() => {
+      setAlerts(prevAlerts => prevAlerts.filter(alert => alert.id !== newAlert.id));
+    }, 5000);
+  };
+
+  const onSubmit: SubmitHandler<Inputs> = (data) => {
+    if (
+      produto &&
+      (produto.nome === data.nome &&
+        produto.material === data.material &&
+        produto.codigo_material === data.codigo_material &&
+        produto.lote_material === data.lote_material &&
+        produto.quantidade.toString() === data.quantidade &&
+        produto.data_validade === data.data_validade)
+    ) {
+      adicionarAlert("Atualize alguma informação para atualizar!");
+    } else {
+      const format: ProdutoPutForm = {
+        id: produto?.id_produto.toString(),
+        nome: data.nome,
+        material: data.material,
+        codigo_material: data.codigo_material,
+        lote_material: data.lote_material,
+        quantidade: data.quantidade,
+        data_validade: data.data_validade,
+      }
+
+      try {
+        const respose = putProduto(format)
+        console.log("tudo ok: " + respose);
+        adicionarAlert("Produto atualizado com sucesso!!");
+      } catch (error) {
+        adicionarAlert("Erro ao atualizar o Produto!!");
+      }
+    }
+  };
 
   const handleDelete: SubmitHandler<Inputs> = (data) => {
-    console.log("dados deletado \n\n" + data)
+    if (produto) {
+      try {
+        const deletar = deletarProduto(produto.id_produto).then((response) => {
+          console.info("Objeto excluido: " + { ...data }, response)
+          navigate("/estoque")
+        }).catch((error) => {
+          console.log(error)
+          adicionarAlert("erro ao retornar dados!");
+        })
+
+      } catch (error) {
+        adicionarAlert("erro ao deletar id!");
+      }
+    } else {
+      adicionarAlert("erro ao pegar id!");
+    }
   }
 
   return (
@@ -75,20 +145,64 @@ export default function Editar() {
             "&:hover": {
               backgroundColor: "#000053", // Altera a cor de fundo do botão quando hover
             },
-            color:"white",
+            color: "white",
           }}>Voltar</Button>
         </LinkNone>
-        <span style={{marginLeft:15}}>id:{produto?.id_produto.toString()}</span>
       </Header>
       <Box>
         <FormStyled onSubmit={handleSubmit(onSubmit)}>
           <H1>Editar Posição</H1>
           <TextField
             id="fullWidth"
+            error={!!errors.nome}
+            helperText={errors.nome?.message}
+            label="Nome"
+            size="small"
+            InputLabelProps={{
+              style: { color: "white" }, // Altera a cor do rótulo
+            }}
+            {...register("nome")}
+            sx={{
+              "& .MuiOutlinedInput-root .MuiInputBase-input": {
+                color: 'white', // Altera a cor do texto dentro do input
+              },
+              "& .MuiOutlinedInput-notchedOutline": {
+                borderColor: "white", // Altera a cor da borda do input quando não está focado
+              },
+              "& :hover .MuiOutlinedInput-notchedOutline": {
+                borderColor: '#aaa', // Cor da borda em hover para branco
+              },
+            }}
+          />
+          <TextField
+            id="fullWidth"
+            error={!!errors.material}
+            helperText={errors.material?.message}
+            label="Material"
+            size="small"
+            InputLabelProps={{
+              style: { color: "white" }, // Altera a cor do rótulo
+            }}
+            {...register("material")}
+            sx={{
+              "& .MuiOutlinedInput-root .MuiInputBase-input": {
+                color: 'white', // Altera a cor do texto dentro do input
+              },
+              "& .MuiOutlinedInput-notchedOutline": {
+                borderColor: "white", // Altera a cor da borda do input quando não está focado
+              },
+              "& :hover .MuiOutlinedInput-notchedOutline": {
+                borderColor: '#aaa', // Cor da borda em hover para branco
+              },
+            }}
+          />
+          <TextField
+            id="fullWidth"
             error={!!errors.codigo_material}
             helperText={errors.codigo_material?.message}
             label="Codigo do Material"
             size="small"
+            disabled={true}
             InputLabelProps={{
               style: { color: "white" }, // Altera a cor do rótulo
             }}
@@ -100,9 +214,7 @@ export default function Editar() {
               "& .MuiOutlinedInput-notchedOutline": {
                 borderColor: "white", // Altera a cor da borda do input quando não está focado
               },
-              "&:hover .MuiOutlinedInput-notchedOutline": {
-                borderColor: "white", // Altera a cor da borda do input quando hover
-              },
+
             }}
           />
 
@@ -118,36 +230,13 @@ export default function Editar() {
             {...register("lote_material")}
             sx={{
               "& .MuiOutlinedInput-root .MuiInputBase-input": {
-                color: "white", // Altera a cor do texto dentro do input
+                color: 'white', // Altera a cor do texto dentro do input
               },
               "& .MuiOutlinedInput-notchedOutline": {
                 borderColor: "white", // Altera a cor da borda do input quando não está focado
               },
-              "&:hover .MuiOutlinedInput-notchedOutline": {
-                borderColor: "white", // Altera a cor da borda do input quando hover
-              },
-            }}
-          />
-
-          <TextField
-            id="fullWidth"
-            error={!!errors.ordem}
-            helperText={errors.ordem?.message}
-            label="Ordem"
-            size="small"
-            InputLabelProps={{
-              style: { color: "white" }, // Altera a cor do rótulo
-            }}
-            {...register("ordem")}
-            sx={{
-              "& .MuiOutlinedInput-root .MuiInputBase-input": {
-                color: "white", // Altera a cor do texto dentro do input
-              },
-              "& .MuiOutlinedInput-notchedOutline": {
-                borderColor: "white", // Altera a cor da borda do input quando não está focado
-              },
-              "&:hover .MuiOutlinedInput-notchedOutline": {
-                borderColor: "white", // Altera a cor da borda do input quando hover
+              "& :hover .MuiOutlinedInput-notchedOutline": {
+                borderColor: '#aaa', // Cor da borda em hover para branco
               },
             }}
           />
@@ -164,13 +253,13 @@ export default function Editar() {
             {...register("quantidade")}
             sx={{
               "& .MuiOutlinedInput-root .MuiInputBase-input": {
-                color: "white", // Altera a cor do texto dentro do input
+                color: 'white', // Altera a cor do texto dentro do input
               },
               "& .MuiOutlinedInput-notchedOutline": {
                 borderColor: "white", // Altera a cor da borda do input quando não está focado
               },
-              "&:hover .MuiOutlinedInput-notchedOutline": {
-                borderColor: "white", // Altera a cor da borda do input quando hover
+              "& :hover .MuiOutlinedInput-notchedOutline": {
+                borderColor: '#aaa', // Cor da borda em hover para branco
               },
             }}
           />
@@ -193,9 +282,7 @@ export default function Editar() {
               "& .MuiOutlinedInput-notchedOutline": {
                 borderColor: "white", // Altera a cor da borda do input quando não está focado
               },
-              "&:hover .MuiOutlinedInput-notchedOutline": {
-                borderColor: "white", // Altera a cor da borda do input quando hover
-              },
+
             }}
           />
 
@@ -213,7 +300,7 @@ export default function Editar() {
           </Button>
           <Button
             variant="contained"
-            onClick={(data:any) => handleDelete(data)}
+            onClick={(data: any) => handleDelete(data)}
             sx={{
               backgroundColor: "#5a0000", // Altera a cor de fundo do botão
               "&:hover": {
@@ -226,6 +313,9 @@ export default function Editar() {
 
         </FormStyled>
       </Box>
+      {alerts.map(alert => (
+        <MiniAlert key={alert.id} visible={alert.visible} texto={alert.texto} />
+      ))}
     </LayoutDefault>
   );
 }

@@ -10,7 +10,7 @@ import { SelectRua } from "../../../../Components/Fields/SelectRua";
 import SelectPosition from "../../../../Components/Fields/SelectPosition";
 import SelectNivel from "../../../../Components/Fields/SelectNivel";
 import { useState, useEffect } from "react";
-import { PropsGetRuas, PropsGetRuasBloquado, fetchRuas, fetchRuasBloqueado } from "../../../../Utils/Connections/Get";
+import { Nivel, PropsGetRuas, PropsGetRuasBloquado, fetchRuas, fetchRuasBloqueado } from "../../../../Utils/Connections/Get";
 import { FormProduto, registraProduto } from "../../../../Utils/Connections/Post";
 import MiniAlert from "../../../../Components/Menssager/MiniArlet";
 import { useNavigateOnError } from "../../../../Hooks/useApiOnError";
@@ -51,10 +51,10 @@ const LinkNone = styled(Link)`
 `;
 
 const schema = z.object({
-  codigoMaterial: z.string().min(1, "Número mínimo").max(254, "Número máximo"),
-  loteMaterial: z.string().min(1, "Número mínimo").max(254, "Número máximo"),
-  ordem: z.string().min(1, "Número mínimo").max(254, "Número máximo"),
-  quantidade: z.string().min(1, "Número mínimo").max(254, "Número máximo"),
+  nome: z.string().min(1, "Caracteres mínimo 1!").max(254, "Caracteres máximo 254!"),
+  material: z.string().min(1, "Caracteres mínimo 1!").max(254, "Caracteres máximo 254!"),
+  loteMaterial: z.string().min(1, "Caracteres mínimo 1!").max(254, "Caracteres máximo 254!"),
+  quantidade: z.string().min(1, "Número mínimo 1!").max(254, "Número máximo 254!"),
   validade: z.string(),
   nivelId: z.string() // Novo campo para o ID do nível
 });
@@ -77,21 +77,26 @@ export default function Cadastrar() {
 
 
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
+    const selectedRuaObj = listRua.find(rua => rua.id_rua === selectedRuaId);
+    const selectedPrateleira = position?.prateleiras.find(prateleira => prateleira.id_prateleira === selectedPosition);
+    const selectedNivelObj = selectedPrateleira?.niveis.find(nivel => nivel.id_nivel === selectedNivel);
+
     const formData = {
       ...data,
       nivelId: selectedNivel
     };
-  
+
     const formDataProduto: FormProduto = {
-      material: "Material", // Substitua pelos valores apropriados
-      nome: "Nome do Material", // Substitua pelos valores apropriados
-      codigo_material: formData.codigoMaterial,
+      material: formData.material, // Substitua pelos valores apropriados
+      nome: formData.nome, // Substitua pelos valores apropriados
+      codigo_material: `${selectedRuaObj?.codigo}.${selectedPrateleira?.codigo}.${selectedNivelObj?.codigo}`,
       lote_material: formData.loteMaterial,
       data_validade: formData.validade, // Convertendo para string ISO
       quantidade: formData.quantidade,
       id_nivel: formData.nivelId,
     };
-  
+    
+    if(selectedNivelObj?.status != "BLOQUEADO"){
     try {
       const response = await registraProduto(formDataProduto);
       adicionarAlert("Produto registrado com sucesso!!");
@@ -99,6 +104,10 @@ export default function Cadastrar() {
     } catch (error) {
       adicionarAlert("Erro ao registrado o Produto!!");
       console.error("Erro ao registrar produto:", error);
+
+    }}else{
+      adicionarAlert("Produto está Bloqueado!!");
+      console.log("Produto Bloqueado");
     }
   };
 
@@ -132,7 +141,7 @@ export default function Cadastrar() {
     };
 
     fetchData2();
-  }, [selectedRuaId]);
+  }, [selectedRuaId, register]);
 
   const handlePositionClick = (id: string) => {
     setIsListNivel(true);
@@ -155,17 +164,17 @@ export default function Cadastrar() {
 
   const adicionarAlert = (textoString: string) => {
     const newAlert: { id: number, visible: boolean, texto: string } = {
-        id: alerts.length + 1,
-        visible: true,
-        texto: textoString
+      id: alerts.length + 1,
+      visible: true,
+      texto: textoString
     };
 
     setAlerts(prevAlerts => [...prevAlerts, newAlert]);
 
     setTimeout(() => {
-        setAlerts(prevAlerts => prevAlerts.filter(alert => alert.id !== newAlert.id));
+      setAlerts(prevAlerts => prevAlerts.filter(alert => alert.id !== newAlert.id));
     }, 5000);
-};
+  };
 
   return (
     <LayoutDefault>
@@ -207,27 +216,51 @@ export default function Cadastrar() {
           </Separador>
 
           <TextField
-            id="codigoMaterial"
-            error={!!errors.codigoMaterial}
-            helperText={errors.codigoMaterial?.message}
-            label="Codigo do Material"
+            id="nome"
+            error={!!errors.nome}
+            helperText={errors.nome?.message}
+            label="Nome"
             size="small"
             InputLabelProps={{
               style: { color: "white" },
             }}
-            {...register("codigoMaterial")}
+            {...register("nome")}
             sx={{
               "& .MuiOutlinedInput-root .MuiInputBase-input": {
-                color: 'white',
+                color: 'white', // Altera a cor do texto dentro do input
               },
               "& .MuiOutlinedInput-notchedOutline": {
-                borderColor: "white",
+                borderColor: "white", // Altera a cor da borda do input quando não está focado
               },
-              "&:hover .MuiOutlinedInput-notchedOutline": {
-                borderColor: "white",
+              "& :hover .MuiOutlinedInput-notchedOutline": {
+                borderColor: '#aaa', // Cor da borda em hover para branco
               },
             }}
           />
+
+          <TextField
+            id="material"
+            error={!!errors.material}
+            helperText={errors.material?.message}
+            label="Material"
+            size="small"
+            InputLabelProps={{
+              style: { color: "white" },
+            }}
+            {...register("material")}
+            sx={{
+              "& .MuiOutlinedInput-root .MuiInputBase-input": {
+                color: 'white', // Altera a cor do texto dentro do input
+              },
+              "& .MuiOutlinedInput-notchedOutline": {
+                borderColor: "white", // Altera a cor da borda do input quando não está focado
+              },
+              "& :hover .MuiOutlinedInput-notchedOutline": {
+                borderColor: '#aaa', // Cor da borda em hover para branco
+              },
+            }}
+          />
+
 
           <TextField
             id="loteMaterial"
@@ -241,39 +274,17 @@ export default function Cadastrar() {
             {...register("loteMaterial")}
             sx={{
               "& .MuiOutlinedInput-root .MuiInputBase-input": {
-                color: "white",
+                color: 'white', // Altera a cor do texto dentro do input
               },
               "& .MuiOutlinedInput-notchedOutline": {
-                borderColor: "white",
+                borderColor: "white", // Altera a cor da borda do input quando não está focado
               },
-              "&:hover .MuiOutlinedInput-notchedOutline": {
-                borderColor: "white",
+              "& :hover .MuiOutlinedInput-notchedOutline": {
+                borderColor: '#aaa', // Cor da borda em hover para branco
               },
             }}
           />
 
-          <TextField
-            id="ordem"
-            error={!!errors.ordem}
-            helperText={errors.ordem?.message}
-            label="Ordem"
-            size="small"
-            InputLabelProps={{
-              style: { color: "white" },
-            }}
-            {...register("ordem")}
-            sx={{
-              "& .MuiOutlinedInput-root .MuiInputBase-input": {
-                color: "white",
-              },
-              "& .MuiOutlinedInput-notchedOutline": {
-                borderColor: "white",
-              },
-              "&:hover .MuiOutlinedInput-notchedOutline": {
-                borderColor: "white",
-              },
-            }}
-          />
 
           <TextField
             id="quantidade"
@@ -287,13 +298,13 @@ export default function Cadastrar() {
             {...register("quantidade")}
             sx={{
               "& .MuiOutlinedInput-root .MuiInputBase-input": {
-                color: "white",
+                color: 'white', // Altera a cor do texto dentro do input
               },
               "& .MuiOutlinedInput-notchedOutline": {
-                borderColor: "white",
+                borderColor: "white", // Altera a cor da borda do input quando não está focado
               },
-              "&:hover .MuiOutlinedInput-notchedOutline": {
-                borderColor: "white",
+              "& :hover .MuiOutlinedInput-notchedOutline": {
+                borderColor: '#aaa', // Cor da borda em hover para branco
               },
             }}
           />
@@ -302,23 +313,36 @@ export default function Cadastrar() {
             id="validade"
             error={!!errors.validade}
             helperText={errors.validade?.message}
-            label=""
+            label="Data de Validade"
             size="small"
             type="date"
             InputLabelProps={{
-              style: { color: "white" },
+              shrink: true, // Mantém o label visível
+              style: { color: "white", background: "#222", padding: "0px 5px" },
             }}
             {...register("validade")}
             sx={{
               "& .MuiOutlinedInput-root .MuiInputBase-input": {
-                color: "white",
+                color: 'white', // Altera a cor do texto dentro do input
               },
               "& .MuiOutlinedInput-notchedOutline": {
-                borderColor: "white",
+                borderColor: "white", // Altera a cor da borda do input quando não está focado
               },
               "&:hover .MuiOutlinedInput-notchedOutline": {
-                borderColor: "white",
+                borderColor: '#aaa', // Cor da borda em hover para branco
               },
+              "& .MuiInputAdornment-root .MuiSvgIcon-root": {
+                color: 'white', // Altera a cor do ícone do calendário
+              },
+              "& .MuiInputBase-input::placeholder": {
+                color: "white", // Altera a cor do texto do placeholder
+                opacity: 0.5, // Define a opacidade do placeholder
+              },
+              "& .MuiOutlinedInput-root": {
+                "& .MuiSvgIcon-root": {
+                  color: 'white', // Altera a cor do ícone do calendário
+                }
+              }
             }}
           />
 
@@ -327,6 +351,9 @@ export default function Cadastrar() {
             type="hidden"
             {...register("nivelId")}
             value={selectedNivel}
+            sx={{
+              overflow:"hidden"
+            }}
           />
 
           <Button
@@ -345,8 +372,8 @@ export default function Cadastrar() {
         </FormStyled>
       </Box>
       {alerts.map(alert => (
-                <MiniAlert key={alert.id} visible={alert.visible} texto={alert.texto} />
-            ))}
+        <MiniAlert key={alert.id} visible={alert.visible} texto={alert.texto} />
+      ))}
     </LayoutDefault>
   );
 }

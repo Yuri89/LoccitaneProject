@@ -36,9 +36,10 @@ export default function CardInfoEstoque( props:CardEstoqueList ) {
     return (
         <Container>
             <Imagem src={ImgEstoque} alt="Imagem de Estoque" />
+            <Info>Nome: {props.nome}</Info>
+            <Info>Material: {props.material}</Info>
             <Info>Código Material: {props.codigoMaterial}</Info>
             <Info>Lote do Material: {props.loteMaterial}</Info>
-            <Info>Ordem: {props.ordem}</Info>
             <Info>Quantidade: {props.quantidade}</Info>
             <Info>Validade: {props.validade}</Info>
         </Container>

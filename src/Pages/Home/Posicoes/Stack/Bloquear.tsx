@@ -11,6 +11,7 @@ import { SelectRua } from '../../../../Components/Fields/SelectRua';
 import { PropsGetRuas, PropsGetRuasBloquado, fetchRuas, fetchRuasBloqueado } from '../../../../Utils/Connections/Get';
 import { useNavigateOnError } from '../../../../Hooks/useApiOnError';
 import { api } from '../../../../Utils/Api';
+import { bloquearNivel } from '../../../../Utils/Connections/Put';
 
 const Box = styled.div`
     padding: 120px 10px;
@@ -29,13 +30,17 @@ const FormStyled = styled.form`
     gap: 10px;
 `;
 
+const PrateleiraLabel = styled.div<{ isBloqueada: boolean }>`
+    color: ${({ isBloqueada }) => isBloqueada ? 'red' : 'inherit'};
+`;
+
 export default function Bloquear() {
     useNavigateOnError(api);
     const [isLoading, setIsLoading] = useState(false);
     const [isLoadingComponent, setIsLoadingComponent] = useState(true);
     const [alerts, setAlerts] = useState<{ id: number, visible: boolean, texto: string }[]>([]);
     const [selectedPosition, setSelectedPosition] = useState('');
-    const [selectedNivel, setSelectedNivel] = useState('');
+    const [selectedNivel, setSelectedNivel] = useState<any>(null); // Estado para armazenar o objeto de nível selecionado
     const [selectedRuaId, setSelectedRuaId] = useState<string>(''); // Estado para armazenar o ID da rua selecionada
     const [isBloqueado, setIsBloqueado] = useState(false);
     const [listRua, setListRua] = useState<PropsGetRuas[]>([]);
@@ -49,7 +54,7 @@ export default function Bloquear() {
 
     useEffect(() => {
         // Verifica se o nível selecionado está bloqueado
-        const nivelSelecionado = position?.prateleiras.find(prateleira => prateleira.id_prateleira === selectedPosition)?.niveis.find(nivel => nivel.id_nivel === selectedNivel);
+        const nivelSelecionado = position?.prateleiras.find(prateleira => prateleira.id_prateleira === selectedPosition)?.niveis.find(nivel => nivel.id_nivel === selectedNivel?.id_nivel);
         setIsBloqueado(nivelSelecionado?.status === 'BLOQUEADO');
     }, [selectedNivel, position, selectedPosition]);
 
@@ -59,38 +64,39 @@ export default function Bloquear() {
     };
 
     const handleNivelClick = (id: string) => {
-        setSelectedNivel(id);
         const selectedNivelObj = position?.prateleiras.find(prateleira => prateleira.id_prateleira === selectedPosition)?.niveis.find(nivel => nivel.id_nivel === id);
-        if (selectedNivelObj && selectedNivelObj.status === 'BLOQUEADO') {
-            setIsBloqueado(true);
-        } else {
-            setIsBloqueado(false);
-        }
+        setSelectedNivel(selectedNivelObj);
+        setIsBloqueado(selectedNivelObj?.status === 'BLOQUEADO');
     };
 
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         setIsLoading(true);
 
+        if (!selectedNivel) {
+            adicionarAlert("Nenhum nível selecionado.");
+            setIsLoading(false);
+            return;
+        }
+
         const formData = {
-            position: selectedPosition,
-            nivel: selectedNivel,
-            rua: selectedRuaId
+            id: selectedNivel.id_nivel,
+            status: { status: selectedNivel.status }
         };
 
         try {
-            
+            const response = await bloquearNivel(formData);
+            adicionarAlert(`Nível ${isBloqueado ? 'desbloqueado' : 'bloqueado'} com sucesso!`);
+            setSelectedNivel(response.data); // Atualiza o estado com o nível atualizado
+
+            // Fetch updated position data after status change
+            if (selectedRuaId) {
+                const updatedPosition: PropsGetRuasBloquado = await fetchRuasBloqueado(selectedRuaId);
+                setPosition(updatedPosition);
+            }
         } catch (error) {
-            
-        }
-
-        console.log('Dados do formulário:', formData);
-
-        // Chama a função para bloquear ou desbloquear o nível
-        if (isBloqueado) {
-            handleDesbloquearClick();
-        } else {
-            handleBloquearClick();
+            console.error('Erro ao atualizar nível:', error);
+            adicionarAlert(`Erro ao ${isBloqueado ? 'desbloquear' : 'bloquear'} nível.`);
         }
 
         setIsLoading(false);
@@ -108,32 +114,6 @@ export default function Bloquear() {
         setTimeout(() => {
             setAlerts(prevAlerts => prevAlerts.filter(alert => alert.id !== newAlert.id));
         }, 5000);
-    };
-
-    const handleBloquearClick = async () => {
-        console.log('Bloquear nível:', selectedNivel);
-
-        // Lógica para bloquear o nível
-        try {
-            await fetchRuasBloqueado(selectedRuaId); // Chama a função com o ID da rua selecionada
-            adicionarAlert("Nível bloqueado com sucesso!");
-        } catch (error) {
-            console.error('Erro ao bloquear nível:', error);
-            adicionarAlert("Erro ao bloquear nível.");
-        }
-    };
-
-    const handleDesbloquearClick = async () => {
-        console.log('Desbloquear nível:', selectedNivel);
-
-        // Lógica para desbloquear o nível
-        try {
-            await fetchRuasBloqueado(selectedRuaId); // Chama a função com o ID da rua selecionada
-            adicionarAlert("Nível desbloqueado com sucesso!");
-        } catch (error) {
-            console.error('Erro ao desbloquear nível:', error);
-            adicionarAlert("Erro ao desbloquear nível.");
-        }
     };
 
     useEffect(() => {
@@ -185,6 +165,7 @@ export default function Bloquear() {
                         onClick={handlePositionClick}
                         isList={!position?.prateleiras || position?.prateleiras.length === 0}
                         styleB={false}
+                        
                     />
                     <SelectNivel
                         niveis={position?.prateleiras.find(prateleira => prateleira.id_prateleira === selectedPosition)?.niveis || []}
@@ -196,11 +177,10 @@ export default function Bloquear() {
                         variant="contained"
                         type="submit"
                         disabled={isLoading || !selectedPosition || !selectedNivel || !selectedRuaId}
-                        onClick={isBloqueado ? handleDesbloquearClick : handleBloquearClick}
                         sx={{
-                            backgroundColor: isBloqueado ? "red" : "blue",
+                            backgroundColor: isBloqueado ? "darkblue" : "darkred",
                             "&:hover": {
-                                backgroundColor: isBloqueado ? "darkred" : "green",
+                                backgroundColor: isBloqueado ? "blue" : "red",
                             },
                         }}
                     >

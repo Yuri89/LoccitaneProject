@@ -7,8 +7,8 @@ type CodigoRua = {
     ruas: string[];
     loading: boolean;
     onClick: (id: string) => void;
-    styleB: boolean
-}
+    styleB: boolean;
+};
 
 export function SelectRua(props: CodigoRua) {
     const [selectedRua, setSelectedRua] = React.useState<string>('');
@@ -29,10 +29,22 @@ export function SelectRua(props: CodigoRua) {
         }
     };
 
+    // Crie uma cópia das ruas e ids e ordene-a por ruas
+    const ruasComIdsOrdenadas = props.ruas
+        .map((rua, index) => ({ rua, id: props.ids[index] }))
+        .sort((a, b) => a.rua.localeCompare(b.rua));
+
     return (
         <Box sx={{ minWidth: 120 }}>
             <FormControl fullWidth>
-                <InputLabel id="demo-simple-select-label">
+                <InputLabel
+                    id="demo-simple-select-label"
+                    sx={{
+                        color: 'white',
+                        background: '#222',
+                        padding: '0px 5px'
+                    }}
+                >
                     {props.loading ? 'Carregando...' : 'Ruas'}
                 </InputLabel>
                 <Select
@@ -42,33 +54,26 @@ export function SelectRua(props: CodigoRua) {
                     label="Ruas"
                     onChange={handleChange}
                     disabled={props.loading}
-                    sx={props.styleB?{
-                        width: '100%',
-                        "& .MuiOutlinedInput-root .MuiInputBase-input": {
-                            color: "white",
+                    sx={{
+                        width: props.styleB ? '100%' : undefined,
+                        border: '1px solid white', // Define a borda branca
+                        color: 'white', // Define a cor do texto como branco
+                        "& .MuiSelect-iconOutlined": {
+                            color: 'white', // Cor do ícone de dropdown também em branco
                         },
-                        "& .MuiOutlinedInput-notchedOutline": {
-                            borderColor: "white",
+                        "& .MuiOutlinedInput-root": {
+                            "&:hover .MuiOutlinedInput-notchedOutline": {
+                                borderColor: 'white', // Cor da borda em hover para branco
+                            },
                         },
-                        "&:hover .MuiOutlinedInput-notchedOutline": {
-                            borderColor: "white",
-                        },
-                        
-                    }:{
-                      "& .MuiOutlinedInput-root .MuiInputBase-input": {
-                            color: "white",
-                        },
-                        "& .MuiOutlinedInput-notchedOutline": {
-                            borderColor: "white",
-                        },
-                        "&:hover .MuiOutlinedInput-notchedOutline": {
-                            borderColor: "white",
+                        "&:hover": {
+                            borderColor: '#aaa', // Cor da borda em hover para branco
                         },
                     }}
                 >
-                    {props.ruas.map((rua, index) => (
-                        <MenuItem key={props.ids[index]} value={rua}>
-                            Rua: {rua}
+                    {ruasComIdsOrdenadas.map(({ rua, id }) => (
+                        <MenuItem key={id} value={rua}>
+                            {rua}
                         </MenuItem>
                     ))}
                 </Select>

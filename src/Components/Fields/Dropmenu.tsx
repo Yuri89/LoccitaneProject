@@ -37,6 +37,22 @@ export default function Dropmenu(props: DropMenuType) {
         aria-haspopup="true"
         aria-expanded={open ? 'true' : undefined}
         onClick={handleClick}
+        sx={{
+          border: '1px solid white', // Define a borda branca
+          color: 'white', // Define a cor do texto como branco
+            "& .MuiSelect-iconOutlined": {
+              color: 'white', // Cor do ícone de dropdown também em branco
+            },
+            "& .MuiOutlinedInput-root": {
+              "&:hover .MuiOutlinedInput-notchedOutline": {
+                borderColor: 'white', // Cor da borda em hover para branco
+              },
+            },
+            "&:hover": {
+                color:'#aaa',
+                borderColor: '#aaa', // Cor da borda em hover para branco
+              },
+        }}
       >
         {props.texto}
       </Button>

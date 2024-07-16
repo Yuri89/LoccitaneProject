@@ -11,7 +11,7 @@ import { usePosicoes } from "../../../../Context/ContextPosicoes";
 import { deleterPosicao } from "../../../../Utils/Connections/Delete";
 import MiniAlert from "../../../../Components/Menssager/MiniArlet"; // Importe o MiniAlert aqui
 import { fetchRuaID, fetchRuas } from "../../../../Utils/Connections/Get";
-import { updateRua, updateRuaRemove } from "../../../../Utils/Connections/Put";
+import { FormRuaPut, FormRuaRemove, updateRua, updateRuaRemove } from "../../../../Utils/Connections/Put";
 import { useNavigateOnError } from "../../../../Hooks/useApiOnError";
 import { api } from "../../../../Utils/Api";
 
@@ -71,50 +71,56 @@ export default function Editar() {
 
   const handleAtualizar: SubmitHandler<Inputs> = (data) => {
     if (lista?.id_rua) {
-      const rua: any = {
-        codigo: lista.codigo,
-        numero: lista.n_prateleiras,
-        numPrateleiras: data.prateleiras,
-      }
-      console.log("dados deletado \n\n" + lista.id_rua);
+        const dataFormatUpdate: FormRuaPut = {
+            codigo: lista.codigo,
+            numero: Number(lista.n_prateleiras),
+            numPrateleiras: data.prateleiras.toString(),
+        };
 
-      if (Number(lista.n_prateleiras) === data.prateleiras) {
-        console.log("Nada alterado!");
-        adicionarAlert("Adicione um valor maior ou menor!");
-      }
+        const dataFormatRemover: FormRuaRemove = {
+            codigo: lista.codigo,
+            number: Number(lista.n_prateleiras),
+            numPrateleirasRemover: data.prateleiras
+        };
 
-      if (Number(lista.n_prateleiras) < data.prateleiras) {
-        console.log(lista.n_prateleiras, data.prateleiras);
-        updateRua(rua)
-          .then(() => {
-            adicionarAlert("Posições adicionadas com sucesso!");
-            navigate(-1);
-          })
-          .catch((error) => {
-            console.error('Erro ao adicionar posições:', error);
-            adicionarAlert("Erro ao adicionar posições.");
-          });
-      }
+        console.log('ID da rua:', lista.id_rua);
 
-      if (Number(lista.n_prateleiras) > data.prateleiras) {
-        console.log(lista.n_prateleiras, data.prateleiras);
-        updateRuaRemove(rua)
-          .then(() => {
-            adicionarAlert("Posições removidas com sucesso!");
-            navigate(-1);
-          })
-          .catch((error) => {
-            console.error('Erro ao deletar posições:', error);
-            adicionarAlert("Erro ao deletar posições.");
-          });
-      }
+        if (Number(lista.n_prateleiras) === data.prateleiras) {
+            console.log('Nada alterado!');
+            adicionarAlert('Adicione um valor maior ou menor!');
+        }
 
+        if (Number(lista.n_prateleiras) < data.prateleiras) {
+            console.log(lista.n_prateleiras, data.prateleiras);
+            updateRua(dataFormatUpdate)
+                .then(() => {
+                    adicionarAlert('Posições adicionadas com sucesso!');
+                    navigate(-1);
+                })
+                .catch((error) => {
+                    console.error('Erro ao adicionar posições:', error);
+                    adicionarAlert('Erro ao adicionar posições.');
+                });
+        }
 
+        if (Number(lista.n_prateleiras) > data.prateleiras) {
+            console.log(lista.n_prateleiras, data.prateleiras);
+
+            updateRuaRemove(dataFormatRemover)
+                .then(() => {
+                    adicionarAlert('Posições removidas com sucesso!');
+                    navigate(-1);
+                })
+                .catch((error) => {
+                    console.error('Erro ao deletar posições:', error);
+                    adicionarAlert('Erro ao deletar posições.');
+                });
+        }
     } else {
-      console.log("ID da rua não está definido.");
-      adicionarAlert("ID da rua não está definido!");
+        console.log('ID da rua não está definido.');
+        adicionarAlert('ID da rua não está definido!');
     }
-  };
+};
 
   const handleDelete = () => {
     if (lista?.id_rua) {
@@ -159,7 +165,6 @@ export default function Editar() {
             color: "white",
           }}>Voltar</Button>
         </LinkNone>
-        <span style={{ marginLeft: 15 }}>id:{"12431234"}</span>
       </Header>
       <Box>
         <FormStyled onSubmit={handleSubmit(onSubmit)}>
@@ -207,13 +212,13 @@ export default function Editar() {
             })}
             sx={{
               "& .MuiOutlinedInput-root .MuiInputBase-input": {
-                color: "white", // Altera a cor do texto dentro do input
+                color: 'white', // Altera a cor do texto dentro do input
               },
               "& .MuiOutlinedInput-notchedOutline": {
                 borderColor: "white", // Altera a cor da borda do input quando não está focado
               },
-              "&:hover .MuiOutlinedInput-notchedOutline": {
-                borderColor: "white", // Altera a cor da borda do input quando hover
+              "& :hover .MuiOutlinedInput-notchedOutline": {
+                borderColor: '#aaa', // Cor da borda em hover para branco
               },
             }}
           />

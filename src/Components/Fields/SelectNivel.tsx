@@ -6,14 +6,14 @@ type Nivel = {
   id_nivel: string;
   codigo: string;
   status: string;
-}
+};
 
 type SelectNivelProps = {
   niveis: Nivel[];
   isList: boolean;
   onClick: (id: string) => void;
-  styleB:boolean
-}
+  styleB: boolean;
+};
 
 export default function SelectNivel(props: SelectNivelProps) {
   const [selectedNivel, setSelectedNivel] = React.useState<string>('');
@@ -25,10 +25,22 @@ export default function SelectNivel(props: SelectNivelProps) {
     props.onClick(props.niveis[selectedIndex].id_nivel);
   };
 
+  // Ordene os níveis pelo código
+  const niveisOrdenados = [...props.niveis].sort((a, b) => a.codigo.localeCompare(b.codigo));
+
   return (
     <Box sx={{ minWidth: 120 }}>
       <FormControl fullWidth>
-        <InputLabel id="demo-simple-select-label">Níveis</InputLabel>
+        <InputLabel
+          id="demo-simple-select-label"
+          sx={{
+            color: 'white',
+            background: '#222',
+            padding: '0px 5px'
+          }}
+        >
+          Níveis
+        </InputLabel>
         <Select
           labelId="demo-simple-select-label"
           id="demo-simple-select"
@@ -36,39 +48,37 @@ export default function SelectNivel(props: SelectNivelProps) {
           label="Níveis"
           onChange={handleChange}
           disabled={props.isList}
-          sx={props.styleB?{
-            width: '100%',
-            "& .MuiOutlinedInput-root .MuiInputBase-input": {
-                color: "white",
+          sx={{
+            width: props.styleB ? '100%' : undefined,
+            border: '1px solid white', // Define a borda branca
+            color: 'white', // Define a cor do texto como branco
+            "& .MuiSelect-iconOutlined": {
+              color: 'white', // Cor do ícone de dropdown também em branco
             },
-            "& .MuiOutlinedInput-notchedOutline": {
-                borderColor: "white",
+            "& .MuiOutlinedInput-root": {
+              "&:hover .MuiOutlinedInput-notchedOutline": {
+                borderColor: 'white', // Cor da borda em hover para branco
+              },
             },
-            "&:hover .MuiOutlinedInput-notchedOutline": {
-                borderColor: "white",
+            "&:hover": {
+              borderColor: '#aaa', // Cor da borda em hover para branco
             },
-        }:{
-          "& .MuiOutlinedInput-root .MuiInputBase-input": {
-                color: "white",
-            },
-            "& .MuiOutlinedInput-notchedOutline": {
-                borderColor: "white",
-            },
-            "&:hover .MuiOutlinedInput-notchedOutline": {
-                borderColor: "white",
-            },
-        }}
+          }}
           renderValue={(selected) => {
             const selectedNivel = props.niveis.find(nivel => nivel.codigo === selected);
             return (
-              <span style={{ color: selectedNivel?.status === 'BLOQUEADO'? 'red' : 'inherit' }}>
+              <span style={{ color: selectedNivel?.status === 'BLOQUEADO' || selectedNivel?.status === 'CHEIO' ? 'red' : 'inherit' }}>
                 {selected}
               </span>
             );
           }}
         >
-          {props.niveis.map((nivel) => (
-            <MenuItem key={nivel.id_nivel} value={nivel.codigo} style={{ color: nivel.status === 'BLOQUEADO'? 'red' : 'inherit' }}>
+          {niveisOrdenados.map((nivel) => (
+            <MenuItem
+              key={nivel.codigo}
+              value={nivel.codigo}
+              style={{ color: nivel.status === 'BLOQUEADO' || nivel.status === 'CHEIO' ? 'red' : 'inherit' }}
+            >
               {nivel.codigo} ({nivel.status})
             </MenuItem>
           ))}

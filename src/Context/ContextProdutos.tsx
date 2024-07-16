@@ -7,7 +7,7 @@ interface ProdutoPropsGet {
     codigo_material: string;
     lote_material: string;
     data_validade: string;
-    quantidade: string;
+    quantidade: string|number;
     niveis: any[]; // Ajuste este tipo conforme necessário
 }
 
@@ -20,7 +20,6 @@ const ProdutosContext = createContext<ProdutosContextType | undefined>(undefined
 
 function CompartilharProdutos({ children }: PropsWithChildren) {
     const [produto, setProduto] = useState<ProdutoPropsGet>();
-
     return (
         <ProdutosContext.Provider value={{ produto, setProduto }}>
             {children}

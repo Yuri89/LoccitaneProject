@@ -13,4 +13,15 @@ export const deleterPosicao = async (id:string) => {
     }
 };
 
-    
+export const deletarProduto = async (id:string) => {
+    try {
+        const response = await api.delete(`/produtos/${id}`);
+        console.log('Produto deletado com sucesso:', response.data);
+        return response.data;
+    } catch (error) {
+        console.error('Erro ao deletar o produto:', error);
+        throw error;
+    } finally {
+        console.info('Requisição DELETE finalizada');
+    }
+};
