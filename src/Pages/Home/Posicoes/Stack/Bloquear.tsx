@@ -12,6 +12,8 @@ import { PropsGetRuas, PropsGetRuasBloquado, fetchRuas, fetchRuasBloqueado } fro
 import { useNavigateOnError } from '../../../../Hooks/useApiOnError';
 import { api } from '../../../../Utils/Api';
 import { bloquearNivel } from '../../../../Utils/Connections/Put';
+import { HeaderVoltar, LinkNone } from '../style';
+import { useToasts } from '../../../../Context/ContextToast';
 
 const Box = styled.div`
     padding: 120px 10px;
@@ -46,6 +48,7 @@ export default function Bloquear() {
     const [listRua, setListRua] = useState<PropsGetRuas[]>([]);
     const [position, setPosition] = useState<PropsGetRuasBloquado | undefined>(); // Estado para armazenar os detalhes da posição
     const [isListNivel, setIsListNivel] = useState(false);
+    const {showToast} = useToasts()
 
     // Função para lidar com a seleção de uma rua
     const handleRuaClick = (id: string) => {
@@ -74,19 +77,22 @@ export default function Bloquear() {
         setIsLoading(true);
 
         if (!selectedNivel) {
-            adicionarAlert("Nenhum nível selecionado.");
+            showToast("Nenhum nível selecionado.",'info');
             setIsLoading(false);
             return;
         }
 
         const formData = {
             id: selectedNivel.id_nivel,
-            status: { status: selectedNivel.status }
+            status: { status: selectedNivel.status.toString() }
         };
+        console.info(selectedNivel.status)
+
+        if (formData.status.status === "BLOQUEADO" || formData.status.status === "PARA_USO"){
 
         try {
             const response = await bloquearNivel(formData);
-            adicionarAlert(`Nível ${isBloqueado ? 'desbloqueado' : 'bloqueado'} com sucesso!`);
+            showToast(`Nível ${isBloqueado ? 'desbloqueado' : 'bloqueado'} com sucesso!`,'success');
             setSelectedNivel(response.data); // Atualiza o estado com o nível atualizado
 
             // Fetch updated position data after status change
@@ -96,25 +102,14 @@ export default function Bloquear() {
             }
         } catch (error) {
             console.error('Erro ao atualizar nível:', error);
-            adicionarAlert(`Erro ao ${isBloqueado ? 'desbloquear' : 'bloquear'} nível.`);
+            showToast(`Erro ao ${isBloqueado ? 'desbloquear' : 'bloquear'} nível.`,'error');
+        }}else{
+            showToast(`O nível está Cheio!`, 'error');
         }
 
         setIsLoading(false);
     };
 
-    const adicionarAlert = (textoString: string) => {
-        const newAlert: { id: number, visible: boolean, texto: string } = {
-            id: alerts.length + 1,
-            visible: true,
-            texto: textoString
-        };
-
-        setAlerts(prevAlerts => [...prevAlerts, newAlert]);
-
-        setTimeout(() => {
-            setAlerts(prevAlerts => prevAlerts.filter(alert => alert.id !== newAlert.id));
-        }, 5000);
-    };
 
     useEffect(() => {
         const fetchData = async () => {
@@ -148,7 +143,17 @@ export default function Bloquear() {
 
     return (
         <LayoutDefault>
-            <Link to={'/posicoes'}>Voltar</Link>
+            <HeaderVoltar>
+                <LinkNone to={'/posicoes'}>
+                    <Button sx={{
+                        backgroundColor: "#0a1649", // Altera a cor de fundo do botão
+                        "&:hover": {
+                            backgroundColor: "#1634b9", // Altera a cor de fundo do botão quando hover
+                        },
+                        color: "white",
+                    }}>Voltar</Button>
+                </LinkNone>
+            </HeaderVoltar>
             <Box>
                 <FormStyled onSubmit={handleSubmit}>
                     <H1>Bloquear Posições</H1>
@@ -165,7 +170,7 @@ export default function Bloquear() {
                         onClick={handlePositionClick}
                         isList={!position?.prateleiras || position?.prateleiras.length === 0}
                         styleB={false}
-                        
+
                     />
                     <SelectNivel
                         niveis={position?.prateleiras.find(prateleira => prateleira.id_prateleira === selectedPosition)?.niveis || []}
@@ -188,9 +193,6 @@ export default function Bloquear() {
                     </Button>
                 </FormStyled>
             </Box>
-            {alerts.map(alert => (
-                <MiniAlert key={alert.id} visible={alert.visible} texto={alert.texto} />
-            ))}
         </LayoutDefault>
     );
 }

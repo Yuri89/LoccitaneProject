@@ -8,9 +8,9 @@ export const LayoutEstoque = styled.section`
 `
 
 export const LayoutGridEstoque = styled.section`
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    grid-gap: 15px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
 `
 export const LayoutGridPosicao = styled.section`
     display: flex;
@@ -28,7 +28,7 @@ export const PaginationStyled = styled(Pagination)`
 export const ButtonsSeparetors = styled.div`
     display: flex;
     justify-content: flex-start;
-    padding: 16px;
+    padding: 10px 16px;
     gap: 16px;
     align-items: center;
     

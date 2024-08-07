@@ -36,8 +36,8 @@ export default function Ordenar({resposta}:any) {
         >
           <MenuItem value="A-Z">A-Z</MenuItem>
           <MenuItem value="Z-A">Z-A</MenuItem>
-          <MenuItem value="Data-Menor">Data Validade Menor</MenuItem>
-          <MenuItem value="Data-Maior">Data Validade Maior</MenuItem>
+          <MenuItem value="Data-Menor">Data Menor</MenuItem>
+          <MenuItem value="Data-Maior">Data Maior</MenuItem>
         </Select>
       </FormControl>
     </div>

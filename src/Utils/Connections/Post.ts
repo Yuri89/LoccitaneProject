@@ -63,7 +63,6 @@ export const registraProduto = async (formDataProduto: FormProduto) => {
     formData.append('id_nivel', formDataProduto.id_nivel);
 
     return await api.post('/produtos', formData,  {
-            timeout: 5000,
             headers: {
                 'Content-Type': 'multipart/form-data'
             }

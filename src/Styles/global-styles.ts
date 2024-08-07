@@ -22,4 +22,5 @@ export const GlobalStyle = createGlobalStyle`
         color: ${props => props.theme.colors.textSiderBar};
         transition: 300ms;
     }
+
     `

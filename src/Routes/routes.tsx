@@ -138,7 +138,7 @@ export default function Routes() {
         <AuthProvider isSignedIn={true}>
         <RouterProvider
             router={routes}
-            future={{ v7_startTransition: true }} />
+            future={{ v7_startTransition: true }}  />
         </AuthProvider>
     )
 }

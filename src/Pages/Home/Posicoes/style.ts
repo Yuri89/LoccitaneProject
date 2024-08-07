@@ -1,4 +1,5 @@
 import { Pagination } from "@mui/material";
+import { Link } from "react-router-dom";
 import styled from "styled-components";
 
 export const LayoutEstoque = styled.section`
@@ -29,3 +30,12 @@ export const ButtonsSeparetors = styled.div`
         gap: 16px;
     }
 `
+export const HeaderVoltar = styled.header`
+  padding: 10px;
+  background-color: ${props => props.theme.colors.background};
+  box-shadow: 0px 50px 100px black;
+`;
+
+export const LinkNone = styled(Link)`
+  text-decoration: none;
+`;

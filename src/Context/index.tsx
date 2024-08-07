@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { CompartilharDadosPut } from "./DadosPut";
 import { CompartilharPosicoes } from "./ContextPosicoes";
 import { CompartilharProdutos } from "./ContextProdutos";
+import { ToastWrapper } from "./ContextToast";
 
 const queryClient = new QueryClient()
 
@@ -17,7 +18,9 @@ export default function ProviderCenter({ children }: PropsWithChildren) {
                     <CompartilharDadosPut>
                         <CompartilharPosicoes>
                             <CompartilharProdutos>
-                                {children}
+                                <ToastWrapper>
+                                    {children}
+                                </ToastWrapper>
                             </CompartilharProdutos>
                         </CompartilharPosicoes>
                     </CompartilharDadosPut>

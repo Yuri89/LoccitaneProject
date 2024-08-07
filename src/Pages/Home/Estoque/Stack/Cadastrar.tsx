@@ -3,18 +3,22 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import LayoutDefault from "../../../../Styles/Layouts";
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 import { Button, TextField } from "@mui/material";
 import { H1 } from "../../../../Components/Texts";
 import { SelectRua } from "../../../../Components/Fields/SelectRua";
 import SelectPosition from "../../../../Components/Fields/SelectPosition";
 import SelectNivel from "../../../../Components/Fields/SelectNivel";
 import { useState, useEffect } from "react";
-import { Nivel, PropsGetRuas, PropsGetRuasBloquado, fetchRuas, fetchRuasBloqueado } from "../../../../Utils/Connections/Get";
+import { PropsGetRuas, PropsGetRuasBloquado, fetchRuas, fetchRuasBloqueado } from "../../../../Utils/Connections/Get";
 import { FormProduto, registraProduto } from "../../../../Utils/Connections/Post";
 import MiniAlert from "../../../../Components/Menssager/MiniArlet";
 import { useNavigateOnError } from "../../../../Hooks/useApiOnError";
 import { api } from "../../../../Utils/Api";
+import { HeaderVoltar } from "../../Posicoes/style";
+import { useToasts } from "../../../../Context/ContextToast";
+import { VariantType } from "notistack";
+
 
 const Header = styled.header`
   padding: 10px;
@@ -28,15 +32,19 @@ const Box = styled.div`
   justify-content: center;
 `;
 
-const FormStyled = styled.form`
-  padding: 50px 80px 100px;
+const FormStyled = styled.div`
+  display: flex;
+  justify-content: center;
+
+  & > :nth-child(1){
+  padding: 20px 80px 50px;
   width: 530px;
   background: none;
   border: 2px white solid;
   border-radius: 12px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 10px;}
 `;
 
 const Separador = styled.div`
@@ -70,10 +78,10 @@ export default function Cadastrar() {
   const [isBloqueado, setIsBloqueado] = useState(false);
   const [listRua, setListRua] = useState<PropsGetRuas[]>([]);
   const [position, setPosition] = useState<PropsGetRuasBloquado | undefined>();
+  const { showToast } = useToasts();
   const { register, handleSubmit, setValue, formState: { errors } } = useForm<Inputs>({
     resolver: zodResolver(schema),
   });
-  const [alerts, setAlerts] = useState<{ id: number, visible: boolean, texto: string }[]>([]);
 
 
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
@@ -95,19 +103,19 @@ export default function Cadastrar() {
       quantidade: formData.quantidade,
       id_nivel: formData.nivelId,
     };
-    
-    if(selectedNivelObj?.status != "BLOQUEADO"){
-    try {
-      const response = await registraProduto(formDataProduto);
-      adicionarAlert("Produto registrado com sucesso!!");
-      console.log("Produto registrado com sucesso:", response);
-    } catch (error) {
-      adicionarAlert("Erro ao registrado o Produto!!");
-      console.error("Erro ao registrar produto:", error);
 
-    }}else{
-      adicionarAlert("Produto está Bloqueado!!");
-      console.log("Produto Bloqueado");
+    if (selectedNivelObj && selectedNivelObj.status !== "BLOQUEADO" && selectedNivelObj.id_nivel) {
+      try {
+        const response = await registraProduto(formDataProduto);
+        console.log("Produto registrado com sucesso:", response);
+        showToast('Produto registrado com sucesso!!','success' );
+      } catch (error) {
+        showToast('Erro ao registrar produto!', 'error' );
+        console.error("Erro ao registrar produto:", error);
+      }
+    } else {
+      showToast('Erro ao registrar produto!', 'warning' );
+      console.log("Produto Bloqueado ou Nível inválido");
     }
   };
 
@@ -141,7 +149,7 @@ export default function Cadastrar() {
     };
 
     fetchData2();
-  }, [selectedRuaId, register]);
+  }, [selectedRuaId, register, onSubmit]);
 
   const handlePositionClick = (id: string) => {
     setIsListNivel(true);
@@ -162,40 +170,26 @@ export default function Cadastrar() {
     }
   };
 
-  const adicionarAlert = (textoString: string) => {
-    const newAlert: { id: number, visible: boolean, texto: string } = {
-      id: alerts.length + 1,
-      visible: true,
-      texto: textoString
-    };
-
-    setAlerts(prevAlerts => [...prevAlerts, newAlert]);
-
-    setTimeout(() => {
-      setAlerts(prevAlerts => prevAlerts.filter(alert => alert.id !== newAlert.id));
-    }, 5000);
-  };
-
   return (
     <LayoutDefault>
-      <Header>
+      <HeaderVoltar>
         <LinkNone to={'/estoque'}>
           <Button sx={{
-            backgroundColor: "blue",
+            backgroundColor: "#0a1649", // Altera a cor de fundo do botão
             "&:hover": {
-              backgroundColor: "#000053",
+              backgroundColor: "#1634b9", // Altera a cor de fundo do botão quando hover
             },
             color: "white",
           }}>Voltar</Button>
         </LinkNone>
-      </Header>
-      <Box>
-        <FormStyled onSubmit={handleSubmit(onSubmit)}>
+      </HeaderVoltar>
+      <FormStyled>
+        <Box as="form" onSubmit={handleSubmit(onSubmit)} autoComplete="one-time-code">
           <H1>Cadastrar Posição</H1>
           <Separador>
             <SelectRua
-              ids={listRua.map(item => item.id_rua)}
-              ruas={listRua.map(item => item.codigo)}
+              ids={!isLoadingComponent? listRua.map(item => item.id_rua): []}
+              ruas={!isLoadingComponent? listRua.map(item => item.codigo): []}
               onClick={(id: string) => setSelectedRuaId(id)}
               loading={isLoadingComponent}
               styleB={false}
@@ -221,19 +215,20 @@ export default function Cadastrar() {
             helperText={errors.nome?.message}
             label="Nome"
             size="small"
+            autoComplete="one-time-code"
             InputLabelProps={{
               style: { color: "white" },
             }}
             {...register("nome")}
             sx={{
               "& .MuiOutlinedInput-root .MuiInputBase-input": {
-                color: 'white', // Altera a cor do texto dentro do input
+                color: 'white',
               },
               "& .MuiOutlinedInput-notchedOutline": {
-                borderColor: "white", // Altera a cor da borda do input quando não está focado
+                borderColor: "white",
               },
-              "& :hover .MuiOutlinedInput-notchedOutline": {
-                borderColor: '#aaa', // Cor da borda em hover para branco
+              "&:hover .MuiOutlinedInput-notchedOutline": {
+                borderColor: '#aaa !important',
               },
             }}
           />
@@ -244,23 +239,23 @@ export default function Cadastrar() {
             helperText={errors.material?.message}
             label="Material"
             size="small"
+            autoComplete="one-time-code"
             InputLabelProps={{
               style: { color: "white" },
             }}
             {...register("material")}
             sx={{
               "& .MuiOutlinedInput-root .MuiInputBase-input": {
-                color: 'white', // Altera a cor do texto dentro do input
+                color: 'white',
               },
               "& .MuiOutlinedInput-notchedOutline": {
-                borderColor: "white", // Altera a cor da borda do input quando não está focado
+                borderColor: "white",
               },
-              "& :hover .MuiOutlinedInput-notchedOutline": {
-                borderColor: '#aaa', // Cor da borda em hover para branco
+              "&:hover .MuiOutlinedInput-notchedOutline": {
+                borderColor: '#aaa !important',
               },
             }}
           />
-
 
           <TextField
             id="loteMaterial"
@@ -268,23 +263,23 @@ export default function Cadastrar() {
             helperText={errors.loteMaterial?.message}
             label="Lote do Material"
             size="small"
+            autoComplete="one-time-code"
             InputLabelProps={{
               style: { color: "white" },
             }}
             {...register("loteMaterial")}
             sx={{
               "& .MuiOutlinedInput-root .MuiInputBase-input": {
-                color: 'white', // Altera a cor do texto dentro do input
+                color: 'white',
               },
               "& .MuiOutlinedInput-notchedOutline": {
-                borderColor: "white", // Altera a cor da borda do input quando não está focado
+                borderColor: "white",
               },
-              "& :hover .MuiOutlinedInput-notchedOutline": {
-                borderColor: '#aaa', // Cor da borda em hover para branco
+              "&:hover .MuiOutlinedInput-notchedOutline": {
+                borderColor: '#aaa !important',
               },
             }}
           />
-
 
           <TextField
             id="quantidade"
@@ -292,19 +287,20 @@ export default function Cadastrar() {
             helperText={errors.quantidade?.message}
             label="Quantidade"
             size="small"
+            autoComplete="one-time-code"
             InputLabelProps={{
               style: { color: "white" },
             }}
             {...register("quantidade")}
             sx={{
               "& .MuiOutlinedInput-root .MuiInputBase-input": {
-                color: 'white', // Altera a cor do texto dentro do input
+                color: 'white',
               },
               "& .MuiOutlinedInput-notchedOutline": {
-                borderColor: "white", // Altera a cor da borda do input quando não está focado
+                borderColor: "white",
               },
-              "& :hover .MuiOutlinedInput-notchedOutline": {
-                borderColor: '#aaa', // Cor da borda em hover para branco
+              "&:hover .MuiOutlinedInput-notchedOutline": {
+                borderColor: '#aaa !important',
               },
             }}
           />
@@ -317,32 +313,30 @@ export default function Cadastrar() {
             size="small"
             type="date"
             InputLabelProps={{
-              shrink: true, // Mantém o label visível
+              shrink: true,
               style: { color: "white", background: "#222", padding: "0px 5px" },
             }}
             {...register("validade")}
             sx={{
               "& .MuiOutlinedInput-root .MuiInputBase-input": {
-                color: 'white', // Altera a cor do texto dentro do input
+                color: 'white',
               },
               "& .MuiOutlinedInput-notchedOutline": {
-                borderColor: "white", // Altera a cor da borda do input quando não está focado
+                borderColor: "white",
               },
               "&:hover .MuiOutlinedInput-notchedOutline": {
-                borderColor: '#aaa', // Cor da borda em hover para branco
-              },
-              "& .MuiInputAdornment-root .MuiSvgIcon-root": {
-                color: 'white', // Altera a cor do ícone do calendário
+                borderColor: '#aaa !important',
               },
               "& .MuiInputBase-input::placeholder": {
-                color: "white", // Altera a cor do texto do placeholder
-                opacity: 0.5, // Define a opacidade do placeholder
+                color: "white",
+                opacity: 0.5,
               },
               "& .MuiOutlinedInput-root": {
-                "& .MuiSvgIcon-root": {
-                  color: 'white', // Altera a cor do ícone do calendário
-                }
-              }
+                color: 'white'
+              },
+              "& input[type='date']::-webkit-calendar-picker-indicator": {
+                filter: 'invert(1)',
+              },
             }}
           />
 
@@ -352,7 +346,7 @@ export default function Cadastrar() {
             {...register("nivelId")}
             value={selectedNivel}
             sx={{
-              overflow:"hidden"
+              overflow: "hidden"
             }}
           />
 
@@ -368,12 +362,8 @@ export default function Cadastrar() {
           >
             Registrar
           </Button>
-
-        </FormStyled>
-      </Box>
-      {alerts.map(alert => (
-        <MiniAlert key={alert.id} visible={alert.visible} texto={alert.texto} />
-      ))}
+        </Box>
+      </FormStyled>
     </LayoutDefault>
   );
 }

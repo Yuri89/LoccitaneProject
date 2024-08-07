@@ -18,7 +18,7 @@ export const fetchRuas = async (): Promise<PropsGetRuas[]> => {
     try {
         const response = await api.get<PropsGetRuas[]>("/ruas");
         console.log('Dados recebidos:', response.data);
-        console.log('Dados recebidos:', response.status);
+        console.log('Dados recebidos:', response.headers);
         return response.data;
     } catch (error) {
         console.error('Erro na requisição:', error);
@@ -149,5 +149,21 @@ export const fetchGrafico = async (): Promise<GraphicInfo> => {
         throw error;
     } finally {
         
+    }
+};
+
+export const ProdutosFetchSearch = async (page: string, size: string, search: string): Promise<ProdutoContentGet> => {
+    try {
+        const response = await api.get<ProdutoContentGet>('/produtos/filtro', {
+            params: { page, size, search },
+        });
+        console.log('Dados recebidos:', response.data);
+        console.log('Status da resposta:', response.status);
+        return response.data;
+    } catch (error) {
+        console.error('Erro na requisição:', error);
+        throw error;
+    } finally {
+        console.log('Requisição finalizada');
     }
 };

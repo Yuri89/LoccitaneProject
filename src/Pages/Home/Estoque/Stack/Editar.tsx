@@ -13,6 +13,8 @@ import { ProdutoPutForm, putProduto } from "../../../../Utils/Connections/Put";
 import { useState } from "react";
 import MiniAlert from "../../../../Components/Menssager/MiniArlet";
 import { deletarProduto } from "../../../../Utils/Connections/Delete";
+import { HeaderVoltar } from "../../Posicoes/style";
+import { useToasts } from "../../../../Context/ContextToast";
 
 
 const Header = styled.header`
@@ -26,7 +28,11 @@ const Box = styled.div`
     display: flex;
     justify-content: center;
 `;
-const FormStyled = styled.form`
+const FormStyled = styled.div`
+    display: flex;
+    justify-content: center;
+
+    & > :nth-child(1){
     padding: 50px 80px 100px;
     width: 500px;
     background: none;
@@ -34,7 +40,7 @@ const FormStyled = styled.form`
     border-radius: 12px;
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 10px;}
 `
 const LinkNone = styled(Link)`
     text-decoration: none;
@@ -58,6 +64,7 @@ export default function Editar() {
   useNavigateOnError(api);
   const [alerts, setAlerts] = useState<{ id: number, visible: boolean, texto: string }[]>([]);
   const { produto, setProduto } = useProdutos();
+  const {showToast} = useToasts()
   const navigate = useNavigate()
 
 
@@ -71,19 +78,6 @@ export default function Editar() {
     },
   });
 
-  const adicionarAlert = (textoString: string) => {
-    const newAlert: { id: number, visible: boolean, texto: string } = {
-      id: alerts.length + 1,
-      visible: true,
-      texto: textoString
-    };
-
-    setAlerts(prevAlerts => [...prevAlerts, newAlert]);
-
-    setTimeout(() => {
-      setAlerts(prevAlerts => prevAlerts.filter(alert => alert.id !== newAlert.id));
-    }, 5000);
-  };
 
   const onSubmit: SubmitHandler<Inputs> = (data) => {
     if (
@@ -95,7 +89,7 @@ export default function Editar() {
         produto.quantidade.toString() === data.quantidade &&
         produto.data_validade === data.data_validade)
     ) {
-      adicionarAlert("Atualize alguma informação para atualizar!");
+      showToast("Atualize alguma informação para atualizar!",'info' );
     } else {
       const format: ProdutoPutForm = {
         id: produto?.id_produto.toString(),
@@ -110,9 +104,9 @@ export default function Editar() {
       try {
         const respose = putProduto(format)
         console.log("tudo ok: " + respose);
-        adicionarAlert("Produto atualizado com sucesso!!");
+        showToast("Produto atualizado com sucesso!!",'success' );
       } catch (error) {
-        adicionarAlert("Erro ao atualizar o Produto!!");
+        showToast("Erro ao atualizar o Produto!!",'error' );
       }
     }
   };
@@ -123,34 +117,36 @@ export default function Editar() {
         const deletar = deletarProduto(produto.id_produto).then((response) => {
           console.info("Objeto excluido: " + { ...data }, response)
           navigate("/estoque")
+          showToast('Produto Deletado com sucesso!!','success' );
         }).catch((error) => {
           console.log(error)
-          adicionarAlert("erro ao retornar dados!");
+          showToast('Error ao deletar produto!','error' );
         })
 
       } catch (error) {
-        adicionarAlert("erro ao deletar id!");
+        showToast("erro ao deletar id!",'error' );
       }
     } else {
-      adicionarAlert("erro ao pegar id!");
+      showToast("erro ao pegar id!",'error');
     }
   }
 
   return (
     <LayoutDefault>
-      <Header>
+      <HeaderVoltar>
         <LinkNone to={'/estoque'}>
           <Button sx={{
-            backgroundColor: "blue", // Altera a cor de fundo do botão
+            backgroundColor: "#0a1649", // Altera a cor de fundo do botão
             "&:hover": {
-              backgroundColor: "#000053", // Altera a cor de fundo do botão quando hover
+              backgroundColor: "#1634b9", // Altera a cor de fundo do botão quando hover
             },
             color: "white",
           }}>Voltar</Button>
         </LinkNone>
-      </Header>
-      <Box>
-        <FormStyled onSubmit={handleSubmit(onSubmit)}>
+      </HeaderVoltar>
+
+      <FormStyled >
+        <Box as="form" onSubmit={handleSubmit(onSubmit)} autoComplete="off">
           <H1>Editar Posição</H1>
           <TextField
             id="fullWidth"
@@ -170,7 +166,7 @@ export default function Editar() {
                 borderColor: "white", // Altera a cor da borda do input quando não está focado
               },
               "& :hover .MuiOutlinedInput-notchedOutline": {
-                borderColor: '#aaa', // Cor da borda em hover para branco
+                borderColor: '#aaa !important', // Cor da borda em hover para branco
               },
             }}
           />
@@ -192,7 +188,7 @@ export default function Editar() {
                 borderColor: "white", // Altera a cor da borda do input quando não está focado
               },
               "& :hover .MuiOutlinedInput-notchedOutline": {
-                borderColor: '#aaa', // Cor da borda em hover para branco
+                borderColor: '#aaa !important', // Cor da borda em hover para branco
               },
             }}
           />
@@ -236,7 +232,7 @@ export default function Editar() {
                 borderColor: "white", // Altera a cor da borda do input quando não está focado
               },
               "& :hover .MuiOutlinedInput-notchedOutline": {
-                borderColor: '#aaa', // Cor da borda em hover para branco
+                borderColor: '#aaa !important', // Cor da borda em hover para branco
               },
             }}
           />
@@ -259,7 +255,7 @@ export default function Editar() {
                 borderColor: "white", // Altera a cor da borda do input quando não está focado
               },
               "& :hover .MuiOutlinedInput-notchedOutline": {
-                borderColor: '#aaa', // Cor da borda em hover para branco
+                borderColor: '#aaa !important', // Cor da borda em hover para branco
               },
             }}
           />
@@ -310,12 +306,9 @@ export default function Editar() {
           >
             deletar
           </Button>
+        </Box>
+      </FormStyled>
 
-        </FormStyled>
-      </Box>
-      {alerts.map(alert => (
-        <MiniAlert key={alert.id} visible={alert.visible} texto={alert.texto} />
-      ))}
     </LayoutDefault>
   );
 }

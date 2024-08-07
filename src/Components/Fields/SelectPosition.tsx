@@ -58,7 +58,7 @@ export default function SelectPosition(props: NumberPositions) {
               },
             },
             "&:hover": {
-              borderColor: '#aaa', // Cor da borda em hover para branco
+              borderColor: '#aaa !important', // Cor da borda em hover para branco
             },
           }}
         >

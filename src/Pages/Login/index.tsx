@@ -2,8 +2,8 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Link, useNavigate } from "react-router-dom";
-import { TextField, Button, CircularProgress } from "@mui/material";
-import { BoxLogin, LoginPage } from "./style";
+import { TextField, Button, CircularProgress, Box } from "@mui/material";
+import { FormStyled, LoginPage } from "./style";
 import axios, { AxiosError, AxiosResponse } from "axios";
 import { appWindow, PhysicalSize } from "@tauri-apps/api/window";
 import { useEffect, useState } from "react";
@@ -35,6 +35,15 @@ export default function Login() {
         }
 
         resize();
+    }, []);
+
+    const [showSavedInfo, setShowSavedInfo] = useState(true);
+
+    useEffect(() => {
+      const savedInfoVisibility = localStorage.getItem('showSavedInfo');
+      if (savedInfoVisibility === 'false') {
+        setShowSavedInfo(false);
+      }
     }, []);
 
     const navigate = useNavigate();
@@ -78,74 +87,82 @@ export default function Login() {
 
     return (
         <LoginPage>
-            <BoxLogin onSubmit={handleSubmit(onSubmit)}>
-                <h1 style={{ marginBottom: "30px", fontSize: "50px" }}>L´occitane</h1>
-                <TextField
-                    label="Usuário"
-                    variant="outlined"
-                    fullWidth
-                    error={!!errors.email}
-                    helperText={errors.email ? errors.email.message : ""}
-                    {...register("email")}
-                    InputLabelProps={{
-                        style: { color: "white" } // Cor do texto do rótulo
-                    }}
-                    InputProps={{
-                        style: {
-                            color: "white", // Cor do texto de entrada
-                            borderColor: "white", // Cor da borda do campo
-                        },
-                        sx: {
-                            "& .MuiOutlinedInput-root .MuiOutlinedInput-input": {
+            <FormStyled>
+                <Box
+                    component="form"
+                    onSubmit={handleSubmit(onSubmit)}
+                >
+                    <h1 style={{ marginBottom: "30px", fontSize: "50px" }}>L´occitane</h1>
+                    <TextField
+                        label="Usuário"
+                        variant="outlined"
+                        fullWidth
+                        error={!!errors.email}
+                        helperText={errors.email ? errors.email.message : ""}
+                        {...register("email")}
+                        InputLabelProps={{
+                            style: { color: "white" } // Cor do texto do rótulo
+                        }}
+                        InputProps={{
+                            autoComplete: 'one-time-code',
+                            style: {
                                 color: "white", // Cor do texto de entrada
-                            },
-                            "& .MuiOutlinedInput-notchedOutline": {
                                 borderColor: "white", // Cor da borda do campo
                             },
-                            "&:hover .MuiOutlinedInput-notchedOutline": {
-                                borderColor: "white", // Cor da borda ao passar o mouse
+                            sx: {
+                                "& .MuiOutlinedInput-root .MuiOutlinedInput-input": {
+                                    color: "white", // Cor do texto de entrada
+                                },
+                                "& .MuiOutlinedInput-notchedOutline": {
+                                    borderColor: "white", // Cor da borda do campo
+                                },
+                                "&:hover .MuiOutlinedInput-notchedOutline": {
+                                    borderColor: "white", // Cor da borda ao passar o mouse
+                                },
                             },
-                        },
-                    }}
-                />
+                        }}
+                    />
 
-                <TextField
-                    label="Senha"
-                    type="password"
-                    variant="outlined"
-                    fullWidth
-                    error={!!errors.senha}
-                    helperText={errors.senha ? errors.senha.message : ""}
-                    {...register("senha")}
-                    InputLabelProps={{
-                        style: { color: "white" } // Cor do texto do label
-                    }}
-                    InputProps={{
-                        style: { color: "white" }, // Cor do texto de entrada
-                        sx: {
-                            "& .MuiOutlinedInput-root .MuiOutlinedInput-input": {
-                                color: "white", // Cor do texto de entrada
+                    <TextField
+                        label="Senha"
+                        type="password"
+                        variant="outlined"
+                        fullWidth
+                        error={!!errors.senha}
+                        helperText={errors.senha ? errors.senha.message : ""}
+                        {...register("senha")}
+                        InputLabelProps={{
+                            sx: { color: "white" } // Cor do texto do label
+                        }}
+                        InputProps={{
+                            sx: {
+                                "& .MuiOutlinedInput-root .MuiOutlinedInput-input": {
+                                    color: "white", // Cor do texto de entrada
+                                },
+                                "& .MuiOutlinedInput-notchedOutline": {
+                                    borderColor: "white", // Cor da borda do campo
+                                },
+                                "&:hover .MuiOutlinedInput-notchedOutline": {
+                                    borderColor: "white ", // Cor da borda ao passar o mouse
+                                },
+                                "& input[type='password']": {
+                                    filter: 'invert(1) brightness(1000%)', // Inverte a cor do ícone padrão do calendário
+                                },
                             },
-                            "& .MuiOutlinedInput-notchedOutline": {
-                                borderColor: "white", // Cor da borda do campo
-                            },
-                            "&:hover .MuiOutlinedInput-notchedOutline": {
-                                borderColor: "white", // Cor da borda ao passar o mouse
-                            },
-                        },
-                    }}
-                />
-                {erro1 ? <span style={{ color: "red" }}>erro ao conectar na api!!</span>
-                    : null}
-                {erro2 ? <span style={{ color: "red" }}>senha e email incorretos!</span>
-                    : null}
-                {erro3 ? <span style={{ color: "red" }}>error ao fazer login!</span>
-                    : null}
+                        }}
+                    />
+                    {erro1 ? <span style={{ color: "red" }}>erro ao conectar na api!!</span>
+                        : null}
+                    {erro2 ? <span style={{ color: "red" }}>senha e email incorretos!</span>
+                        : null}
+                    {erro3 ? <span style={{ color: "red" }}>error ao fazer login!</span>
+                        : null}
 
-                <Button type="submit" variant="contained" color="primary">
-                    {isLoading?<CircularProgress size={24} color="inherit" />:"Login"}
-                </Button>
-            </BoxLogin>
+                    <Button type="submit" variant="contained" color="primary">
+                        {isLoading ? <CircularProgress size={24} color="inherit" /> : "Login"}
+                    </Button>
+                </Box>
+            </FormStyled>
         </LoginPage>
     );
 }

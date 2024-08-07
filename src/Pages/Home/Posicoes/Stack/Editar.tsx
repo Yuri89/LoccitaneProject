@@ -14,6 +14,7 @@ import { fetchRuaID, fetchRuas } from "../../../../Utils/Connections/Get";
 import { FormRuaPut, FormRuaRemove, updateRua, updateRuaRemove } from "../../../../Utils/Connections/Put";
 import { useNavigateOnError } from "../../../../Hooks/useApiOnError";
 import { api } from "../../../../Utils/Api";
+import { useToasts } from "../../../../Context/ContextToast";
 
 const Header = styled.header`
   padding: 10px;
@@ -54,6 +55,7 @@ export default function Editar() {
   useNavigateOnError(api);
   const navigate = useNavigate();
   const { lista } = usePosicoes();
+  const {showToast} = useToasts();
   const { register, handleSubmit, formState: { errors }, setValue } = useForm<Inputs>({
     resolver: zodResolver(schema),
     defaultValues: lista ? {
@@ -61,9 +63,6 @@ export default function Editar() {
       prateleiras: Number(lista.n_prateleiras), // Converta para número aqui
     } : undefined,
   });
-
-
-  const [alerts, setAlerts] = useState<{ id: number, visible: boolean, texto: string }[]>([]);
 
   const onSubmit: SubmitHandler<Inputs> = (data) => {
 
@@ -87,19 +86,19 @@ export default function Editar() {
 
         if (Number(lista.n_prateleiras) === data.prateleiras) {
             console.log('Nada alterado!');
-            adicionarAlert('Adicione um valor maior ou menor!');
+            showToast('Adicione um valor maior ou menor','info');
         }
 
         if (Number(lista.n_prateleiras) < data.prateleiras) {
             console.log(lista.n_prateleiras, data.prateleiras);
             updateRua(dataFormatUpdate)
                 .then(() => {
-                    adicionarAlert('Posições adicionadas com sucesso!');
+                    showToast('Posições adicionadas com sucesso!','success');
                     navigate(-1);
                 })
                 .catch((error) => {
                     console.error('Erro ao adicionar posições:', error);
-                    adicionarAlert('Erro ao adicionar posições.');
+                    showToast('Erro ao adicionar posições.','error');
                 });
         }
 
@@ -108,17 +107,17 @@ export default function Editar() {
 
             updateRuaRemove(dataFormatRemover)
                 .then(() => {
-                    adicionarAlert('Posições removidas com sucesso!');
+                  showToast('Posições removidas com sucesso!','success');
                     navigate(-1);
                 })
                 .catch((error) => {
                     console.error('Erro ao deletar posições:', error);
-                    adicionarAlert('Erro ao deletar posições.');
+                    showToast('Erro ao remover posições!','error');
                 });
         }
     } else {
         console.log('ID da rua não está definido.');
-        adicionarAlert('ID da rua não está definido!');
+        showToast('ID da rua não está definido!','error');
     }
 };
 
@@ -127,30 +126,17 @@ export default function Editar() {
       console.log("dados deletado \n\n" + lista.id_rua);
       deleterPosicao(lista.id_rua)
         .then(() => {
-          adicionarAlert("Posição deletada com sucesso!");
+          showToast("Posição deletada com sucesso!",'success');
           navigate(-1);
         })
         .catch((error) => {
           console.error('Erro ao deletar posição:', error);
-          adicionarAlert("Erro ao deletar posição.");
+          showToast("Erro ao deletar posição.",'error');
         });
     } else {
+      showToast("ID da rua não está definido.",'warning');
       console.log("ID da rua não está definido.");
     }
-  };
-
-  const adicionarAlert = (textoString: string) => {
-    const newAlert: { id: number, visible: boolean, texto: string } = {
-      id: alerts.length + 1,
-      visible: true,
-      texto: textoString
-    };
-
-    setAlerts(prevAlerts => [...prevAlerts, newAlert]);
-
-    setTimeout(() => {
-      setAlerts(prevAlerts => prevAlerts.filter(alert => alert.id !== newAlert.id));
-    }, 5000);
   };
 
   return (
@@ -158,9 +144,9 @@ export default function Editar() {
       <Header>
         <LinkNone to={'/posicoes'}>
           <Button sx={{
-            backgroundColor: "blue", // Altera a cor de fundo do botão
+            backgroundColor: "#0a1649", // Altera a cor de fundo do botão
             "&:hover": {
-              backgroundColor: "#000053", // Altera a cor de fundo do botão quando hover
+              backgroundColor: "#1634b9", // Altera a cor de fundo do botão quando hover
             },
             color: "white",
           }}>Voltar</Button>
@@ -252,9 +238,6 @@ export default function Editar() {
           </Button>
         </FormStyled>
       </Box>
-      {alerts.map(alert => (
-        <MiniAlert key={alert.id} visible={alert.visible} texto={alert.texto} />
-      ))}
     </LayoutDefault>
   );
 }

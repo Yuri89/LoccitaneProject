@@ -52,15 +52,16 @@ export default function Posicoes() {
     const style = {
         height: 100,
     };
-    useEffect(()=> {
+    useEffect(() => {
         refetch()
-    },[])
-    
+    }, [])
+
 
     return (
         <LayoutDefault>
+            <h1 style={{ fontSize: '25px', borderBottom: '2px solid white', textAlign: 'center' }}>Posições</h1>
+
             <LayoutEstoque>
-                <h1>Rua</h1>
                 <ButtonsSeparetors>
                     <Dropmenu
                         texto="Opções"
